@@ -48,7 +48,7 @@ const createDatabase = async (request, result) => {
     try {
         const entryquery = format('INSERT INTO password_databases (database_name, database_password) VALUES (%L, %L) RETURNING *', databasename, password)
         const newdatabaseentry = await pool.query(entryquery);
-        const databasequery = format('CREATE TABLE IF NOT EXISTS %I (name VARCHAR(50) PRIMARY KEY,  username VARCHAR(50), password VARCHAR(50), date_created TIMESTAMP DEFAULT NOW(), date_updated TIMESTAMP DEFAULT NOW())', databasename)
+        const databasequery = format('CREATE TABLE IF NOT EXISTS %I (name VARCHAR(50) PRIMARY KEY,  username VARCHAR(50), email VARCHAR(50), password VARCHAR(50), date_created TIMESTAMP DEFAULT NOW(), date_updated TIMESTAMP DEFAULT NOW())', databasename)
         const newdatabase = await pool.query(databasequery);
         const extrafields = `${ databasename }_extra_values`;
         const extraquery = format('CREATE TABLE IF NOT EXISTS %I (name VARCHAR(50),  field_name VARCHAR(50), field_value VARCHAR(50), private boolean)', extrafields);
@@ -61,9 +61,31 @@ const createDatabase = async (request, result) => {
     }
 }
 
+//Gets password for database by name
+const getDatabasePassword = async (request, result) => {
+    const { databasename } = request.params;
+    var actualpassword = '';
+    console.log(databasename);
+    try {
+        const passwordquery = format('SELECT database_password FROM password_databases WHERE database_name = %L', databasename);
+        const password = await pool.query(passwordquery);
+        if (password.rowCount > 0) {
+            actualpassword = password.rows[0].database_password;
+        }
+        result.json({ actualpassword });
+
+    }
+    catch (error) {
+        console.error(error);
+        result.status(500).json({message: 'Error with retrieving database password'});
+    }
+    
+}
+
 export {
     getDatabases,
     checkDatabase,
     createDatabase,
+    getDatabasePassword,
 }
     

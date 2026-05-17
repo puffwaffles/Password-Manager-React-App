@@ -18,6 +18,8 @@ app.get("/databases/:databasename", dbqueries.checkDatabase);
 //Creates a new database
 app.post("/databases/:database", dbqueries.createDatabase);
 
+//Checks pasword by database name
+app.get("/databases/login/:databasename", dbqueries.getDatabasePassword);
 
 app.listen(8000, () => {
     console.log('App running on port 8000');

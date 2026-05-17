@@ -2,20 +2,29 @@ import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import axios from "axios";
 import './pages.css'
+import { Lineicons } from "@lineiconshq/react-lineicons";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 
 const api_url = 'http://localhost:8000';
 
 const Prompt = () => {
     const [newdatabase, setNewdatabase] = useState({ databasename: '', password: '' });
     const [popup, setPopup] = useState(false);
+    const [hidePassword, setHidePassword] = useState(true);
     const navigate = useNavigate();
 
-    //Closes popup btn
+    //Toggles eye btn
+    function toggleEye(event) {
+        event.preventDefault();
+        setHidePassword(!hidePassword);
+    }
+
+    //Toggles popup btn
     function togglePopup(event) {
         setPopup(!popup);
     }
 
-    //Creates popup button
+    //Creates popup button if popup is toggled on
     const Popup = ({signin, errormessage}) => {
         if (popup) {
             return (
@@ -36,38 +45,44 @@ const Prompt = () => {
         //Checks if database was already created
         const databaseexists = await axios.get(`${api_url}/databases/${databasename}`);
         console.log(databaseexists.data);
+        //If database exists, toggle on popup
         if (databaseexists.data.exists) {
             togglePopup();
         }
         else {
             //Creates new database
             const newdatabaseentry = await axios.post(`${api_url}/databases/${databasename}`, {databasename: databasename, password: password});
+            //Return to home page
             navigate('/');
         }
     }
 
     return (
         <div>
-            <Popup errormessage = 'This database name has been taken' />
             <h1>Please enter a database name and password</h1>
-            <form onSubmit = { handleSubmit }>
-                <label> Database name: 
+            <form onSubmit = { handleSubmit } className = "submitform">
+                <Popup errormessage = 'This database name has been taken' />
+                <div className = 'formitem'>
+                    <div className = "labelblock"><label> Database name </label></div>
                     <input 
                         type = 'text'
                         value = {newdatabase.databasename}
                         onChange = {event => setNewdatabase({ ...newdatabase, databasename: event.target.value })}
                     />
-                </label>
-                <label> Password: 
+                </div>
+                <div className = 'formitem'>
+                    <div className = "labelblock"><label> Password </label><button onClick = { toggleEye }>{ hidePassword ? <FaRegEyeSlash /> : <FaRegEye /> }</button></div>
                     <input 
-                        type = 'text'
+                        type = { hidePassword ? 'password' : 'text' }
                         value = {newdatabase.password}
                         onChange = {event => setNewdatabase({ ...newdatabase, password: event.target.value })}
                     />
-                </label>
-                <input type = 'submit' />
+                </div>
+                <div className = "twobtns">
+                    <input type = 'submit' />
+                    <button type = 'button' className = 'closebtn' onClick = {() => navigate('/')}>Go Back</button>
+                </div>    
             </form>
-            <button className = 'closebtn' onClick = {() => navigate('/')}>Go Back</button>
         </div>
     );
 };

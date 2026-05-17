@@ -1,16 +1,23 @@
 .popupbtn {
-    height: 20%;
+    margin: 0 auto;
+    height: 40%;
+    width: 50%;
     padding: 10px;
+    padding-bottom: 15px;
     background-color: white;
     border: solid 1px black;
     border-radius: 10px 10px 10px 10px;
     z-index: 9999;
-    position: absolute;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .closebtn {
     background-color: white;
-    height: 30%;
+    height: 20%;
     width: 10%;
     border: solid 1px black;
     border-radius: 10px 10px 10px 10px;
@@ -28,6 +35,96 @@
     box-shadow: none;
 }
 
+.databaselist {
+    text-align: left;
+    margin: 0 auto;
+    width: 50%;
+    border-radius: 5px;
+    border: 1px solid black;
+    padding: 15px;
+}
+
+.leftlist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
 li {
     list-style-type: none;
+}
+
+.submitform {
+    text-align: left;
+    margin: 0 auto;
+    width: 50%;
+    border-radius: 5px;
+    border: 1px solid black;
+    padding: 15px;
+}
+
+.formitem {
+    width: 100%;
+    padding-top: 20px;
+    padding-bottom: 10px;
+}
+
+.labelblock {
+    display: block;
+}
+
+.twobtns {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+input[type = text], input[type = password] {
+    width: 50%;
+    display: inline-block;
+    cursor: pointer;
+}
+
+input[type = submit] {
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: rgb(115, 255, 34);
+}
+
+input[type = submit]:hover {
+    background-color: rgb(58, 214, 6);
+}
+
+.barbox {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 50%;
+    border-radius: 5px;
+    border: 1px solid black;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin: 0 auto;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid black;
+}
+
+.barboxcontent {
+    align-items: left;
+}
+
+.botbar {
+    display: flex;
+    justify-content: space-between;
+    border-top: 2px solid black;
+}
+
+.logo {
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
 }
