@@ -1,3 +1,7 @@
+.body {
+    color: black;
+}
+
 .popupbtn {
     margin: 0 auto;
     height: 40%;
@@ -64,6 +68,7 @@ li {
 }
 
 .formitem {
+    color: black;
     width: 100%;
     padding-top: 20px;
     padding-bottom: 10px;
@@ -71,6 +76,7 @@ li {
 
 .labelblock {
     display: block;
+    color: black;
 }
 
 .twobtns {
@@ -111,6 +117,7 @@ input[type = submit]:hover {
     display: flex;
     justify-content: space-between;
     border-bottom: 2px solid black;
+    position: relative;
 }
 
 .barboxcontent {

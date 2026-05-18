@@ -1,16 +1,16 @@
 import React, {useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import axios from "axios";
-import './pages.css'
-import { Lineicons } from "@lineiconshq/react-lineicons";
-import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
+import axios from 'axios';
+import './pages.css';
+import Error from './error.jsx';
+import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa6';
 
 const api_url = 'http://localhost:8000';
 
 const Login = () => {
     const { databasename } = useParams();
     const [loginpassword, setLoginPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState(false);
+    const [showerroressage, setShowErrorMessage] = useState(false);
     const [hidePassword, setHidePassword] = useState(true);
     const navigate = useNavigate();
 
@@ -20,27 +20,11 @@ const Login = () => {
         setHidePassword(!hidePassword);
     }
 
-    //Toggles popup btn
-    function toggleErrorMessage() {
-        setErrorMessage(!errorMessage);
-    }
-
-    //Creates popup button if popup is toggled on
-    const Message = () => {
-        if (errorMessage) {
-            return (
-            <h4 style = {{ color: 'red' }}>The entered password is incorrect</h4>
-        ); 
-        }
-        return(<></>);
-
-    }
-
     //Handles submission of database name and password
     async function handleSubmit(event) {
         console.log('databasename:', databasename);
         event.preventDefault();
-        //Checks if database was already created
+        //Checks if password is correct
         const correctpassword = await axios.get(`${api_url}/databases/login/${databasename}`);
         console.log(correctpassword.data);
         console.log('password:', loginpassword);
@@ -49,8 +33,8 @@ const Login = () => {
             navigate(`/database/${databasename}`);
         }
         else {
-            //Toggle on error message
-            toggleErrorMessage();
+            //Set error message on
+            setShowErrorMessage(true);
         }
     }
 
@@ -63,10 +47,16 @@ const Login = () => {
                     <input 
                         type = { hidePassword ? 'password' : 'text' }
                         value = { loginpassword } 
-                        onChange = {event => setLoginPassword(event.target.value)}
+                        onChange = {
+                            event => {
+                                setLoginPassword(event.target.value);
+                                //Set error message off
+                                setShowErrorMessage(false);
+                            }
+                        }
                     />
                 </div>
-                <Message />  
+                <Error showerror = { showerroressage } errormessage = 'Incorrect password'/>  
                 <div className = "twobtns">
                     <input type = 'submit' />
                     <button type = 'button' className = 'closebtn' onClick = {() => navigate('/')}>Go Back</button>

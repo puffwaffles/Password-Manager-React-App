@@ -46,9 +46,9 @@ const checkDatabase = async (request, result) => {
 const createDatabase = async (request, result) => {
     const { databasename, password } = request.body;
     try {
-        const entryquery = format('INSERT INTO password_databases (database_name, database_password) VALUES (%L, %L) RETURNING *', databasename, password)
+        const entryquery = format('INSERT INTO password_databases (database_name, database_password) VALUES (%L, %L) RETURNING *', databasename, password);
         const newdatabaseentry = await pool.query(entryquery);
-        const databasequery = format('CREATE TABLE IF NOT EXISTS %I (name VARCHAR(50) PRIMARY KEY,  username VARCHAR(50), email VARCHAR(50), password VARCHAR(50), date_created TIMESTAMP DEFAULT NOW(), date_updated TIMESTAMP DEFAULT NOW())', databasename)
+        const databasequery = format('CREATE TABLE IF NOT EXISTS %I (name VARCHAR(50) PRIMARY KEY,  username VARCHAR(50), email VARCHAR(50), password VARCHAR(50), date_created TIMESTAMP DEFAULT NOW(), date_updated TIMESTAMP DEFAULT NOW())', databasename);
         const newdatabase = await pool.query(databasequery);
         const extrafields = `${ databasename }_extra_values`;
         const extraquery = format('CREATE TABLE IF NOT EXISTS %I (name VARCHAR(50),  field_name VARCHAR(50), field_value VARCHAR(50), private boolean)', extrafields);
@@ -82,10 +82,50 @@ const getDatabasePassword = async (request, result) => {
     
 }
 
+//Deletes all tables for database and removes database entry from password_databases
+const deleteDatabase = async (request, result) => {
+    const { databasename } = request.params;
+    try {
+        const extrafields = `${ databasename }_extra_values`;
+        const extraquery = format('DROP TABLE IF EXISTS %I', extrafields);
+        const deletedatabaseextras = await pool.query(extraquery);
+        const databasequery = format('DROP TABLE IF EXISTS %I', databasename);
+        const deletedatabase = await pool.query(databasequery);
+        const entryquery = format('DELETE FROM password_databases WHERE database_name = %L', databasename);
+        const deletedatabaseentry = await pool.query(entryquery);  
+        result.json({ databasename });
+    }
+    catch (error) {
+        console.error(error);
+        result.status(500).json({message: 'Error with deleting database'});
+    }
+}
+
+//Changes password for a database
+const updateDatabasePassword = async (request, result) => {
+    const { databasename } = request.params;
+    const { password } = request.body;
+    console.log('databasename:', databasename);
+    console.log('password:', password);
+    console.log('full body:', request.body);
+
+    try {
+        const passwordquery = format('UPDATE password_databases SET database_password = %L WHERE database_name = %L RETURNING *', password, databasename);
+        const newpassword = await pool.query(passwordquery);
+        result.json(newpassword.rows[0]);
+    }
+    catch (error) {
+        console.error(error);
+        result.status(500).json({message: 'Error with changing database password'});
+    }
+}
+
 export {
     getDatabases,
     checkDatabase,
     createDatabase,
     getDatabasePassword,
+    deleteDatabase,
+    updateDatabasePassword,
 }
     

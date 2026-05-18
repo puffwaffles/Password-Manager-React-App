@@ -21,6 +21,12 @@ app.post("/databases/:database", dbqueries.createDatabase);
 //Checks pasword by database name
 app.get("/databases/login/:databasename", dbqueries.getDatabasePassword);
 
+//Deletes an old database
+app.delete("/databases/delete/:databasename", dbqueries.deleteDatabase);
+
+//Sets password for a given database
+app.patch("/databases/setpassword/:databasename", dbqueries.updateDatabasePassword);
+
 app.listen(8000, () => {
     console.log('App running on port 8000');
 });

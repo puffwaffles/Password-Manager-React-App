@@ -4,11 +4,11 @@ import axios from "axios";
 import './pages.css'
 import { FaLock } from "react-icons/fa";
 import { CiCirclePlus } from "react-icons/ci";
-import { BsThreeDotsVertical } from "react-icons/bs";
+import Databasesidebar from "../navbars/databasesidebar.jsx"
 const api_url = 'http://localhost:8000';
 
 const Database = () => {
-    const { database_username } = useParams();
+    const { databasename } = useParams();
     const [entries, setEntries] = useState([]);
     const navigate = useNavigate();
 
@@ -16,10 +16,10 @@ const Database = () => {
         <div className = 'barbox'>
             <div className = 'topbar'>
                 <button type = 'button' className = 'logo' onClick = {() => navigate('/')}>{ <FaLock /> }</button>
-                <button type = 'button' className = 'logo'>{ <BsThreeDotsVertical /> }</button>
+                <Databasesidebar />
             </div>
             <div className = 'barboxcontent'>
-                <h1>{ database_username } Password Database</h1>
+                <h1>Password Database { databasename }</h1>
             </div>
             <div className = 'botbar'>
                 <button className = 'logo'>{ <CiCirclePlus /> }</button>
