@@ -9,6 +9,7 @@ const api_url = 'http://localhost:8000';
 
 const Prompt = () => {
     const [newdatabase, setNewdatabase] = useState({ databasename: '', password: '' });
+    const [errormessage, setErrorMessage] = useState('');
     const [showerroressage, setShowErrorMessage] = useState(false);
     const [hidePassword, setHidePassword] = useState(true);
     const navigate = useNavigate();
@@ -26,10 +27,16 @@ const Prompt = () => {
         //Checks if database was already created
         const databaseexists = await axios.get(`${api_url}/databases/${databasename}`);
         console.log(databaseexists.data);
-        //If database exists, toggle on popup
-        if (databaseexists.data.exists) {
+        if (databasename === '') {
             //Set error message on
             setShowErrorMessage(true);
+            setErrorMessage('Database must have a name');
+        }
+        //If database exists, toggle on popup
+        else if (databaseexists.data.exists) {
+            //Set error message on
+            setShowErrorMessage(true);
+            setErrorMessage(`The database name ${databasename} has been taken`);
         }
         else {
             //Creates new database
@@ -57,7 +64,7 @@ const Prompt = () => {
                         }
                     />
                 </div>
-                <Error showerror = { showerroressage } errormessage = {`The database name ${newdatabase.databasename} has been taken`} />
+                <Error showerror = { showerroressage } errormessage = {errormessage} />
                 <div className = 'formitem'>
                     <div className = "labelblock"><label> Password </label><button onClick = { toggleEye }>{ hidePassword ? <FaRegEyeSlash /> : <FaRegEye /> }</button></div>
                     <input 

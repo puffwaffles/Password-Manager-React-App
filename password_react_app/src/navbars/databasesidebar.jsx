@@ -9,6 +9,34 @@ import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 const api_url = 'http://localhost:8000';
 
 //Panel for entering new username
+const Newnamepanel = ({ hidenamepanel, newname, setNewName, setShowErrorMessage, showerroressage, errormessage, handleNameSubmit }) => {
+    if (hidenamepanel) {
+        return (<></>);
+    }
+    return (
+        <div>
+            <div className = 'sidebars'>Please enter a new databse name</div>
+            <form onSubmit = { handleNameSubmit }>
+                <div className = 'formitem'>
+                    <div className = "labelblock"><label> New Name </label></div>
+                    <input 
+                        type = 'text'
+                        value = { newname } 
+                        onChange = {
+                            event => {
+                                setNewName(event.target.value);
+                                //Set error message off
+                                setShowErrorMessage(false);
+                            }
+                        }
+                    />
+                </div>
+                <input type = 'submit' />
+                <Error showerror = { showerroressage } errormessage = { errormessage }/>
+            </form>
+        </div>
+    );
+}
 
 //Panel for entering new password
 const Newpasswordpanel = ({ hidepasswordpanel, newpassword, setNewPassword, setShowErrorMessage, showerroressage, errormessage, handlePasswordSubmit, toggleEye, toggleEye2, hidePassword, hidePassword2 }) => {
@@ -70,7 +98,7 @@ const Deletepanel = ( {deleteDatabase, toggleDelete, hidedelete} ) => {
     );
 }
 
-const Bar = ({toggleSidebar, hidesidebar, togglePasswordPanel, toggleDelete, hidedelete, hidepasswordpanel, newpassword, setNewPassword, setShowErrorMessage, showerroressage, errormessage, handlePasswordSubmit, toggleEye, toggleEye2, hidePassword, hidePassword2, deleteDatabase}) => {
+const Bar = ({toggleSidebar, toggleNamePanel, togglePasswordPanel, toggleDelete, hidesidebar, hidedelete, hidenamepanel, newname, setNewName, handleNameSubmit, hidepasswordpanel, newpassword, setNewPassword, setShowErrorMessage, showerroressage, errormessage, handlePasswordSubmit, toggleEye, toggleEye2, hidePassword, hidePassword2, deleteDatabase}) => {
         if (hidesidebar) {
             return (
                 <button type = 'button' className = 'logo' onClick = { toggleSidebar }>{ <BsThreeDotsVertical /> }</button>
@@ -79,7 +107,16 @@ const Bar = ({toggleSidebar, hidesidebar, togglePasswordPanel, toggleDelete, hid
         return (
             <div className = 'sidebar'>
                 <button className = 'sidebarclosebtn' onClick = { toggleSidebar }>x</button>
-                <div className = 'sidebars'>Change Database Name</div>
+                <div className = 'sidebars' onClick = { toggleNamePanel }>Change Database Name</div>
+                <Newnamepanel 
+                    hidenamepanel = { hidenamepanel }
+                    newname = { newname }
+                    setNewName = { setNewName }
+                    setShowErrorMessage = { setShowErrorMessage } 
+                    showerroressage = { showerroressage }
+                    errormessage = { errormessage }
+                    handleNameSubmit = { handleNameSubmit }
+                />
                 <div className = 'sidebars' onClick = { togglePasswordPanel }>Change Password</div>
                 <Newpasswordpanel 
                     hidepasswordpanel = { hidepasswordpanel }
@@ -106,9 +143,11 @@ const Bar = ({toggleSidebar, hidesidebar, togglePasswordPanel, toggleDelete, hid
 
 const Databasesidebar = () => {
     const { databasename } = useParams();
+    const [newname, setNewName] = useState('');
     const [hidesidebar, setHideSidebar] = useState(true);
     const [showerroressage, setShowErrorMessage] = useState(false);
     const [errormessage, setErrorMessage] = useState('');
+    const [hidenamepanel, setHideNamePanel] = useState(true);
     const [hidepasswordpanel, setHidePasswordPanel] = useState(true);
     const [newpassword, setNewPassword] = useState({ password: '', confirmpassword: '' });
     const [hidePassword, setHidePassword] = useState(true);
@@ -128,9 +167,19 @@ const Databasesidebar = () => {
         setHidePassword(!hidePassword);
     }
 
+    //Toggles second eye btn
     function toggleEye2(event) {
         event.preventDefault();
         setHidePassword2(!hidePassword2);
+    }
+
+    //Toggles name panel
+    function toggleNamePanel(event) {
+        event.preventDefault();
+        setHideNamePanel(!hidenamepanel);
+        //Make sure other panels are hidden
+        setHideDelete(true);
+        setHidePasswordPanel(true);
     }
 
     //Toggles password panel 
@@ -138,6 +187,7 @@ const Databasesidebar = () => {
         event.preventDefault();
         setHidePasswordPanel(!hidepasswordpanel);
         //Make sure other panels are hidden
+        setHideNamePanel(true);
         setHideDelete(true);
     }
 
@@ -146,6 +196,7 @@ const Databasesidebar = () => {
         event.preventDefault();
         setHideDelete(!hidedelete);
         //Make sure other panels are hidden
+        setHidePasswordPanel(true);
         setHidePasswordPanel(true);
     }
 
@@ -158,6 +209,35 @@ const Databasesidebar = () => {
 
         //Returns back to homepage
         navigate('/');
+    }
+
+    //Handles submission of new password
+    async function handleNameSubmit(event) {
+        console.log('databasename:', databasename);
+        event.preventDefault();
+        const newdatabasename = newname;
+        //Checks if database name is already used
+        const databaseexists = await axios.get(`${api_url}/databases/${newdatabasename}`);
+        
+        console.log('newdatabasename:', newdatabasename);
+        if (newdatabasename === '') {
+            //Set error message on
+            setShowErrorMessage(true);
+            setErrorMessage('Database must have a name');
+        }
+        else if (!databaseexists.data.exists) {
+            const changedname = await axios.patch(`${api_url}/databases/setname/${databasename}`, { newdatabasename });
+            setNewName('');
+            setHideNamePanel(true);
+            setHideSidebar(true);
+            navigate(`/database/${changedname.data.database_name}`);
+        }
+        //If database name is already used by another database
+        else if (databaseexists.data.exists && databasename !== newdatabasename) {
+            //Set error message on
+            setShowErrorMessage(true);
+            setErrorMessage(`The database name ${newdatabasename} has been taken`);
+        }
     }
 
     //Handles submission of new password
@@ -192,9 +272,14 @@ const Databasesidebar = () => {
         <Bar 
             toggleSidebar = { toggleSidebar } 
             hidesidebar = { hidesidebar }
+            toggleNamePanel= {toggleNamePanel}
             togglePasswordPanel = { togglePasswordPanel } 
             toggleDelete = { toggleDelete }
             hidedelete = { hidedelete }
+            hidenamepanel = { hidenamepanel }
+            newname = { newname }
+            setNewName = { setNewName }
+            handleNameSubmit = { handleNameSubmit }
             hidepasswordpanel = { hidepasswordpanel }
             newpassword = { newpassword }
             setNewPassword = { setNewPassword }

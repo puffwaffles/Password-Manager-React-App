@@ -24,6 +24,9 @@ app.get("/databases/login/:databasename", dbqueries.getDatabasePassword);
 //Deletes an old database
 app.delete("/databases/delete/:databasename", dbqueries.deleteDatabase);
 
+//Sets name for a given database
+app.patch("/databases/setname/:databasename", dbqueries.updateDatabaseName);
+
 //Sets password for a given database
 app.patch("/databases/setpassword/:databasename", dbqueries.updateDatabasePassword);
 
