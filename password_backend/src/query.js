@@ -15,8 +15,8 @@ const pool = new Pool({
 //Acquires list of created password databases
 const getDatabases = async (request, result) => {
     try {
-        const databaselist = await pool.query('SELECT * FROM password_databases ORDER BY database_name')
-        result.json(databaselist.rows)
+        const databaselist = await pool.query('SELECT * FROM password_databases ORDER BY database_name');
+        result.json(databaselist.rows);
     }
     catch (error) {
         console.error(error);
@@ -142,6 +142,52 @@ const updateDatabasePassword = async (request, result) => {
     }
 };
 
+//Retrieves all entries for the database
+const getEntries = async (request, result) => {
+    const { databasename } = request.params;
+    try {
+        const entrylist = await pool.query('SELECT * FROM %I ORDER BY name', databasename);
+        result.json(entrylist.rows)
+    }
+    catch (error) {
+        console.error(error);
+        result.status(500).json({message: 'Error with getting database entries'});
+    }
+};
+
+//Creates new entry for database
+const createEntry = async (request, result) => {
+    const { databasename } = request.params;
+    const { entryname } = request.body;
+    try {
+        const entryquery = format('INSERT INTO %I (name) VALUES (%L) RETURNING *', databasename, entryname);
+        const newentry = await pool.query(entryquery);
+        result.json(entry.rows[0]);
+    }
+    catch (error) {
+        console.error(error);
+        result.status(500).json({message: 'Error with creating new database entry'});
+    }
+}
+
+//Deletes an entry for a given database
+const deleteEntry = async (request, result) => {
+    const { databasename } = request.params.databasename;
+    const { entryname } = request.params.entryname;
+    try {
+        const extrafields = `${ databasename }_extra_values`;
+        const extraquery = format('DELETE FROM %I WHERE name = %L', extrafields, entryname);
+        const deletedatabaseextras = await pool.query(extraquery);
+        const entryquery = format('DELETE FROM %I WHERE name = %L', databasename, entryname);
+        const deleteentry = await pool.query(databasequery);
+        result.json({ deleteentry });
+    }
+    catch (error) {
+        console.error(error);
+        result.status(500).json({message: 'Error with deleting database entry'});
+    }
+};
+
 export {
     getDatabases,
     checkDatabase,
@@ -150,5 +196,8 @@ export {
     deleteDatabase,
     updateDatabaseName,
     updateDatabasePassword,
+    getEntries,
+    createEntry,
+    deleteEntry,
 }
     
