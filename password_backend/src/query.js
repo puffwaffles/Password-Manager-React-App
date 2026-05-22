@@ -170,6 +170,25 @@ const createEntry = async (request, result) => {
     }
 }
 
+//Check if entry already exists for database
+const checkEntry = async (request, result) => {
+    const { databasename } = request.params;
+    const { entryname } = request.params;
+    var exists = false;
+    try {
+        const databaseentry = format('SELECT * FROM %I WHERE name = %L', [databasename]);
+        const database = await pool.query(databaseentry);
+        if (database.rowCount > 0) {
+            exists = true;
+        }
+        result.json({ exists });
+    }
+    catch (error) {
+        console.error(error);
+        result.status(500).json({message: 'Error with checking database name'});
+    }
+};
+
 //Deletes an entry for a given database
 const deleteEntry = async (request, result) => {
     const { databasename } = request.params.databasename;
@@ -197,6 +216,7 @@ export {
     updateDatabaseName,
     updateDatabasePassword,
     getEntries,
+    checkEntry,
     createEntry,
     deleteEntry,
 }

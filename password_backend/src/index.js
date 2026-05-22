@@ -18,7 +18,7 @@ app.get("/databases/:databasename", dbqueries.checkDatabase);
 //Creates a new database
 app.post("/databases/:database", dbqueries.createDatabase);
 
-//Checks pasword by database name
+//Checks password by database name
 app.get("/databases/login/:databasename", dbqueries.getDatabasePassword);
 
 //Deletes a database
@@ -32,6 +32,9 @@ app.patch("/databases/setpassword/:databasename", dbqueries.updateDatabasePasswo
 
 //Displays all entries for a given database
 app.get("/databases/entries/:databasename", dbqueries.getEntries);
+
+//Checks database for a given entry
+app.get("databases/checkentries/:databasename/:entryname", dbqueries.checkEntry);
 
 //Creates a new entry for a given database
 app.post("/entries/create/:databasename", dbqueries.createEntry);

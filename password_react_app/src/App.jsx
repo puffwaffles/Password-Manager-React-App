@@ -18,6 +18,8 @@ function App() {
         <Route path = '/prompt_database' element = {<Prompt />} />
         <Route path = '/login/:databasename' element = {<Login />} />
         <Route path = '/database/:databasename' element = {<Database />} />
+        <Route path = '/entry/database/:databasename/entry/:entryname' element = {<Entry />} />
+        <Route path = '/editentry/database/:databasename/entry/:entryname' element = {<Entry />} />
       </Routes>
     </Router>
   )

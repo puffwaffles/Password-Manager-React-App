@@ -5,6 +5,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import './navbars.css';
 import Error from "../pages/error.jsx";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
+import { FaRegTrashCan } from "react-icons/fa6";
 
 const api_url = 'http://localhost:8000';
 
