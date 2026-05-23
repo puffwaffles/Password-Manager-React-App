@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
+import {useNavigate, useParams, Link} from 'react-router-dom';
 import axios from "axios";
 import './pages.css'
 import { FaLock } from "react-icons/fa";
-import Databasesidebar from "../navbars/databasesidebar.jsx"
+import Databasesidebar from "../navbars/databasesidebar.jsx";
+import Databaseplusbar from "../navbars/databaseplusbar.jsx";
 const api_url = 'http://localhost:8000';
 
 const Database = () => {
@@ -20,9 +21,9 @@ const Database = () => {
     //Calls function in index.js to retrieve all created database entries
     const retrieveEntries = async () => {
         const result = await axios.get(`${api_url}/databases/entries/${ databasename }`); 
+        setEntries(result.data);
     };   
     
-
     return (
         <div className = 'barbox'>
             <div className = 'topbar'>
@@ -30,7 +31,12 @@ const Database = () => {
                 <Databasesidebar />
             </div>
             <div className = 'barboxcontent'>
-                <h1>Password Database { databasename }</h1>
+                <div className = 'screentitle'>
+                    <h2>Password Database { databasename }</h2>
+                </div>
+                <ul className = 'leftlist'>
+                    {entries.map(entry => <li key = {entry.name} ><Link to = {`/database/${ databasename }/entry/${ entry.name }`}>{entry.name}</Link></li>)}
+                </ul>
             </div>
             <div className = 'botbar'>
                 <Databaseplusbar />

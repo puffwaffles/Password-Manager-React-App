@@ -29,7 +29,7 @@ const checkDatabase = async (request, result) => {
     const { databasename } = request.params;
     var exists = false;
     try {
-        const databaseentry = format('SELECT * FROM password_databases WHERE database_name = %L', [databasename]);
+        const databaseentry = format('SELECT * FROM password_databases WHERE database_name = %L', databasename);
         const database = await pool.query(databaseentry);
         if (database.rowCount > 0) {
             exists = true;
@@ -146,8 +146,9 @@ const updateDatabasePassword = async (request, result) => {
 const getEntries = async (request, result) => {
     const { databasename } = request.params;
     try {
-        const entrylist = await pool.query('SELECT * FROM %I ORDER BY name', databasename);
-        result.json(entrylist.rows)
+        const entryquery = format('SELECT * FROM %I ORDER BY name', databasename);
+        const entrylist = await pool.query(entryquery);
+        result.json(entrylist.rows);
     }
     catch (error) {
         console.error(error);
@@ -162,7 +163,7 @@ const createEntry = async (request, result) => {
     try {
         const entryquery = format('INSERT INTO %I (name) VALUES (%L) RETURNING *', databasename, entryname);
         const newentry = await pool.query(entryquery);
-        result.json(entry.rows[0]);
+        result.json(newentry.rows[0]);
     }
     catch (error) {
         console.error(error);
@@ -176,7 +177,7 @@ const checkEntry = async (request, result) => {
     const { entryname } = request.params;
     var exists = false;
     try {
-        const databaseentry = format('SELECT * FROM %I WHERE name = %L', [databasename]);
+        const databaseentry = format('SELECT * FROM %I WHERE name = %L', databasename, entryname);
         const database = await pool.query(databaseentry);
         if (database.rowCount > 0) {
             exists = true;
@@ -207,6 +208,28 @@ const deleteEntry = async (request, result) => {
     }
 };
 
+//Retrieves all fields 
+const getEntryFields = async (request, result) => {
+    const { databasename } = request.params;
+    const { entryname } = request.params;
+    try {
+        const entryquery = format('SELECT * FROM %I WHERE name = %L', databasename, entryname);
+        const entrylist = await pool.query(entryquery);
+        const extrafields = `${ databasename }_extra_values`;
+        const extrafieldsquery = format('SELECT field_name, field_value, private FROM %I WHERE name = %L', extrafields, entryname);
+        const extrafieldslist = await pool.query(extrafieldsquery);
+        const fullentry = {
+            mainfields: entrylist.rows[0],
+            extrafields: extrafieldslist.rows
+        }   
+        result.json(fullentry);
+    }
+    catch (error) {
+        console.error(error);
+        result.status(500).json({message: 'Error with getting entry fields'});
+    }
+};
+
 export {
     getDatabases,
     checkDatabase,
@@ -219,5 +242,6 @@ export {
     checkEntry,
     createEntry,
     deleteEntry,
+    getEntryFields,
 }
     

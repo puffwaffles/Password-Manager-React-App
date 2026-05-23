@@ -34,13 +34,16 @@ app.patch("/databases/setpassword/:databasename", dbqueries.updateDatabasePasswo
 app.get("/databases/entries/:databasename", dbqueries.getEntries);
 
 //Checks database for a given entry
-app.get("databases/checkentries/:databasename/:entryname", dbqueries.checkEntry);
+app.get("/databases/checkentries/:databasename/:entryname", dbqueries.checkEntry);
 
 //Creates a new entry for a given database
 app.post("/entries/create/:databasename", dbqueries.createEntry);
 
 //Deletes a database entry
 app.delete("/entries/delete/:databasename/:entryname", dbqueries.deleteEntry);
+
+//Gets all fields for a given entry
+app.get("/databases/entries/fields/:databasename/:entryname", dbqueries.getEntryFields);
 
 app.listen(8000, () => {
     console.log('App running on port 8000');

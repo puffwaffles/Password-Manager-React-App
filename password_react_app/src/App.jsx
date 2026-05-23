@@ -8,6 +8,7 @@ import Home from './pages/home.jsx';
 import Prompt from './pages/prompt.jsx';
 import Login from './pages/login.jsx';
 import Database from './pages/database.jsx';
+import Entry from './pages/entry.jsx';
 
 function App() {
 
@@ -18,8 +19,8 @@ function App() {
         <Route path = '/prompt_database' element = {<Prompt />} />
         <Route path = '/login/:databasename' element = {<Login />} />
         <Route path = '/database/:databasename' element = {<Database />} />
-        <Route path = '/entry/database/:databasename/entry/:entryname' element = {<Entry />} />
-        <Route path = '/editentry/database/:databasename/entry/:entryname' element = {<Entry />} />
+        <Route path = '/database/:databasename/entry/:entryname' element = {<Entry />} />
+        <Route path = '/database/:databasename/editentry/entry/:entryname' element = {<Entry />} />
       </Routes>
     </Router>
   )

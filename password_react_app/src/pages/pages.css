@@ -49,9 +49,11 @@
 }
 
 .leftlist {
+    text-align: left;
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 5px;
+    color: black;
 }
 
 li {
@@ -111,6 +113,7 @@ input[type = submit]:hover {
     padding-top: 15px;
     padding-bottom: 15px;
     margin: 0 auto;
+    min-height: 50vh;
 }
 
 .topbar {
@@ -121,7 +124,16 @@ input[type = submit]:hover {
 }
 
 .barboxcontent {
-    align-items: left;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex: 1;
+}
+
+.screentitle {
+    display: flex;
+    justify-content: center;
 }
 
 .botbar {
