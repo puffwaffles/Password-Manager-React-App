@@ -17,6 +17,7 @@ services:
       host: ${host} 
       database: ${database}
       password: ${password}
+      sessionsecret: ${sessionsecret}
     ports:
       - "8000:8000"
     depends_on:

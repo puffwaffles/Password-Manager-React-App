@@ -19,7 +19,7 @@ const getDatabases = async (request, result) => {
         result.json(databaselist.rows);
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with getting databases: ', error);
         result.status(500).json({message: 'Error with getting databases'});
     }
 };
@@ -37,7 +37,7 @@ const checkDatabase = async (request, result) => {
         result.json({ exists });
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with checking database name: ', error);
         result.status(500).json({message: 'Error with checking database name'});
     }
 };
@@ -56,7 +56,7 @@ const createDatabase = async (request, result) => {
         result.json(newdatabaseentry.rows[0]);
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with creating new database: ', error);
         result.status(500).json({message: 'Error with creating new database'});
     }
 };
@@ -76,7 +76,7 @@ const getDatabasePassword = async (request, result) => {
 
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with retrieving database password: ', error);
         result.status(500).json({message: 'Error with retrieving database password'});
     }
     
@@ -96,7 +96,7 @@ const deleteDatabase = async (request, result) => {
         result.json({ databasename });
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with deleting database: ', error);
         result.status(500).json({message: 'Error with deleting database'});
     }
 };
@@ -118,7 +118,7 @@ const updateDatabaseName = async (request, result) => {
         result.json(newname.rows[0]);
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with changing database name', error);
         result.status(500).json({message: 'Error with changing database name'});
     }
 };
@@ -137,7 +137,7 @@ const updateDatabasePassword = async (request, result) => {
         result.json(newpassword.rows[0]);
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with changing database password: ', error);
         result.status(500).json({message: 'Error with changing database password'});
     }
 };
@@ -151,7 +151,7 @@ const getEntries = async (request, result) => {
         result.json(entrylist.rows);
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with getting database entries: ', error);
         result.status(500).json({message: 'Error with getting database entries'});
     }
 };
@@ -166,7 +166,7 @@ const createEntry = async (request, result) => {
         result.json(newentry.rows[0]);
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with creating new database entry: ', error);
         result.status(500).json({message: 'Error with creating new database entry'});
     }
 }
@@ -185,7 +185,7 @@ const checkEntry = async (request, result) => {
         result.json({ exists });
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with checking database name: ', error);
         result.status(500).json({message: 'Error with checking database name'});
     }
 };
@@ -203,7 +203,7 @@ const deleteEntry = async (request, result) => {
         result.json({ deleteentry });
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with deleting database entry: ', error);
         result.status(500).json({message: 'Error with deleting database entry'});
     }
 };
@@ -225,12 +225,13 @@ const getEntryFields = async (request, result) => {
         result.json(fullentry);
     }
     catch (error) {
-        console.error(error);
+        console.error('Error with getting entry fields: ', error);
         result.status(500).json({message: 'Error with getting entry fields'});
     }
 };
 
 export {
+    pool,
     getDatabases,
     checkDatabase,
     createDatabase,

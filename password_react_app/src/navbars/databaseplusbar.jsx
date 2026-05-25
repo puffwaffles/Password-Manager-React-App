@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import axios from "axios";
+axios.defaults.withCredentials = true;
 import './navbars.css';
 import Error from "../pages/error.jsx";
 import { CiCirclePlus } from "react-icons/ci";
@@ -43,8 +44,8 @@ const Bar = ({togglePlusbar, hideplusbar, newentry, setNewEntry, handleEntrySubm
     );
 };
 
-const Databaseplusbar = () => {
-    const { databasename } = useParams();
+const Databaseplusbar = ({bardatabasename}) => {
+    const databasename = bardatabasename;
     const [newentry, setNewEntry] = useState('');
     const [hideplusbar, setHidePlusbar] = useState(true);
     const [showerroressage, setShowErrorMessage] = useState(false);
@@ -74,11 +75,11 @@ const Databaseplusbar = () => {
         //User enters an acceptable entry name
         else if (!entryexists.data.exists) {
             const createdentry = await axios.post(`${api_url}/entries/create/${databasename}`, { entryname });
-            setNewName('');
+            setNewEntry('');
             setHidePlusbar(true);
         }
         //If entry name is already used by another entry
-        else if (dentryexists.data.exists.data.exists) {
+        else if (entryexists.data.exists) {
             //Set error message on
             setShowErrorMessage(true);
             setErrorMessage(`The database entry name ${entryname} has been taken`);

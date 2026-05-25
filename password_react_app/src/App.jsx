@@ -17,10 +17,10 @@ function App() {
       <Routes>
         <Route path = '/' element = {<Home />} />
         <Route path = '/prompt_database' element = {<Prompt />} />
-        <Route path = '/login/:databasename' element = {<Login />} />
-        <Route path = '/database/:databasename' element = {<Database />} />
-        <Route path = '/database/:databasename/entry/:entryname' element = {<Entry />} />
-        <Route path = '/database/:databasename/editentry/entry/:entryname' element = {<Entry />} />
+        <Route path = '/login' element = {<Login />} />
+        <Route path = '/database' element = {<Database />} />
+        <Route path = '/database/entry' element = {<Entry />} />
+        <Route path = '/database/editentry' element = {<Entry />} />
       </Routes>
     </Router>
   )

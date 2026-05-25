@@ -39,6 +39,10 @@
     box-shadow: none;
 }
 
+.listlinks {
+    cursor: pointer;
+}
+
 .databaselist {
     text-align: left;
     margin: 0 auto;

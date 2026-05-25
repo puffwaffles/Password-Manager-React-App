@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import axios from "axios";
+axios.defaults.withCredentials = true;
 import { BsThreeDotsVertical } from "react-icons/bs";
 import './navbars.css';
 import Error from "../pages/error.jsx";
@@ -142,8 +143,8 @@ const Bar = ({toggleSidebar, toggleNamePanel, togglePasswordPanel, toggleDelete,
         );
     }
 
-const Databasesidebar = () => {
-    const { databasename } = useParams();
+const Databasesidebar = ({bardatabasename}) => {
+    const databasename = bardatabasename;
     const [newname, setNewName] = useState('');
     const [hidesidebar, setHideSidebar] = useState(true);
     const [showerroressage, setShowErrorMessage] = useState(false);
@@ -231,7 +232,10 @@ const Databasesidebar = () => {
             setNewName('');
             setHideNamePanel(true);
             setHideSidebar(true);
-            navigate(`/database/${changedname.data.database_name}`);
+            const changedsessionname = await axios.get(`${api_url}/setsessiondatabase/${newdatabasename}`);
+            const sessiondatabase = await axios.get(`${api_url}/getsessiondatabase`);
+            console.log("front end databasename: ", sessiondatabase.data.databasename);
+            navigate(`/database/`);
         }
         //If database name is already used by another database
         else if (databaseexists.data.exists && databasename !== newdatabasename) {

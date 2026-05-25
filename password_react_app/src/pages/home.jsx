@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import axios from "axios";
+axios.defaults.withCredentials = true;
 const api_url = 'http://localhost:8000';
 
 const Home = () => {
     const [databases, setDatabases] = useState([]);
+    const navigate = useNavigate();
 
     //Update list of databases
     useEffect(() => {
@@ -17,6 +19,13 @@ const Home = () => {
         setDatabases(result.data);
     };
 
+    //Sets database name for login to and navigates to database login
+    const goToLogin = async (databasename) => {
+        //Set login
+        const login = await axios.get(`${api_url}/setsessiondatabase/${databasename}`);
+        navigate('/login');
+    };
+
     return (
         <div>
             <h1>Password App</h1>
@@ -24,7 +33,7 @@ const Home = () => {
                 <h3><Link to = '/prompt_database'>Create New Database</Link></h3>
                 <h3>Created Databases</h3>
                 <ul className = 'leftlist'>
-                    {databases.map(database => <li key = {database.database_name}><Link to = {`/login/${ database.database_name }`}>{ database.database_name }</Link></li>)}
+                    {databases.map(database => <li className = 'listlinks' key = {database.database_name} onClick = {() => goToLogin(database.database_name)}>{ database.database_name }</li>)}
                 </ul>
             </div>
         </div>
