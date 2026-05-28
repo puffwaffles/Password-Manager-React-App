@@ -109,6 +109,9 @@ app.get("/databases/:databasename", dbqueries.checkDatabase);
 app.post("/databases/:database", dbqueries.createDatabase);
 
 //Checks password by database name
+app.get("/databases/password/login/:databasename/:password", dbqueries.checkDatabasePassword);
+
+//gets password by database name
 app.get("/databases/login/:databasename", dbqueries.getDatabasePassword);
 
 //Deletes a database

@@ -61,6 +61,26 @@ const createDatabase = async (request, result) => {
     }
 };
 
+//Checks inputted password for database by name and password
+const checkDatabasePassword = async (request, result) => {
+    const { databasename } = request.params;
+    const { password } = request.params; 
+    console.log("check password database name: ", databasename);
+    console.log("check password password: ", password);
+    var correct = false;
+    try {
+        const passwordquery = format('SELECT * FROM password_databases WHERE database_name = %L AND database_password = %L', databasename, password);
+        const correctpassword = await pool.query(passwordquery);
+        correct = correctpassword.rowCount > 0 ? true : false;
+        console.log("correct: ", correct);
+        result.json({ correct });
+    }
+    catch (error) {
+        console.error('Error with retrieving database password: ', error);
+        result.status(500).json({message: 'Error with checking database password'});
+    }
+};
+
 //Gets password for database by name
 const getDatabasePassword = async (request, result) => {
     const { databasename } = request.params;
@@ -235,6 +255,7 @@ export {
     getDatabases,
     checkDatabase,
     createDatabase,
+    checkDatabasePassword,
     getDatabasePassword,
     deleteDatabase,
     updateDatabaseName,

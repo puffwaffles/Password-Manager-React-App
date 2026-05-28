@@ -47,12 +47,16 @@ const Login = () => {
     async function handleSubmit(event) {
         console.log('databasename:', databasename);
         event.preventDefault();
+        const password = loginpassword;
         //Checks if password is correct
-        const correctpassword = await axios.get(`${api_url}/databases/login/${databasename}`);
-        console.log(correctpassword.data);
+        const correct = await axios.get(`${api_url}/databases/password/login/${databasename}/${password}`);
+        console.log(correct.data);
+        console.log(correct.data.correct);
         console.log('password:', loginpassword);
+        const correctpassword = await axios.get(`${api_url}/databases/login/${databasename}`);
+        console.log('correct password: ', correctpassword.data.actualpassword);
         //If password is correct, travel to database page
-        if (correctpassword.data.actualpassword === loginpassword) {
+        if (correct.data.correct) {
             //Set login
             const login = await axios.get(`${api_url}/setloginsession/${databasename}`);
             console.log(login.data);

@@ -45,6 +45,7 @@ const Database = () => {
     
     //Locks the database
     const lockDatabase = async () => {
+        //Deletes session for database
         const locked = await axios.get(`${api_url}/deleteloginsession`);
         navigate('/');
     };

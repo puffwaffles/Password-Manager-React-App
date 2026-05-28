@@ -209,6 +209,9 @@ const Databasesidebar = ({bardatabasename}) => {
         //Deletes all tables for given database
         const deletedatabase = await axios.delete(`${api_url}/databases/delete/${databasename}`);
 
+        //Deletes session for database
+        const locked = await axios.get(`${api_url}/deleteloginsession`);
+
         //Returns back to homepage
         navigate('/');
     }
@@ -251,16 +254,17 @@ const Databasesidebar = ({bardatabasename}) => {
         event.preventDefault();
         const password = newpassword.password;
         const confirmpassword = newpassword.confirmpassword;
-        const correctpassword = await axios.get(`${api_url}/databases/login/${databasename}`);
-        console.log(correctpassword.data);
+        //Checks if password is old password
+        const correct = await axios.get(`${api_url}/databases/password/login/${databasename}/${password}`);
+        console.log(correct.data);
         console.log('newpassword state:', newpassword);
-        //Checks if database was already created
-        if (correctpassword.data.actualpassword === password) {
+        //New password is the same as old password
+        if (correct.data.correct) {
             //Set error message on
             setShowErrorMessage(true);
             setErrorMessage('New password can not be the same as old password');
         }
-        //If password is correct, travel to database page
+        //Checks if new password is the same as old password
         else if (password !== confirmpassword) {
             //Set error message on
             setShowErrorMessage(true);
