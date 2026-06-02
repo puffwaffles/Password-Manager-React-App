@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import axios from "axios";
 axios.defaults.withCredentials = true;
 import './navbars.css';
@@ -8,23 +8,23 @@ import { CiCirclePlus } from "react-icons/ci";
 
 const api_url = 'http://localhost:8000';
 
-const Bar = ({togglePlusbar, hideplusbar, newentry, setNewEntry, handleEntrySubmit, setShowErrorMessage, showerroressage, errormessage}) => {
+const Bar = ({togglePlusbar, hidePlusBar, newEntry, setNewEntry, handleEntrySubmit, setShowErrorMessage, showErrorMessage, errorMessage}) => {
     return (
         <div className = 'fullplusbar'>
-            {(hideplusbar) && (
+            {(hidePlusBar) && (
                 <button className = 'logo' onClick = { togglePlusbar }>{ <CiCirclePlus /> }</button>
             )}
-            {(!hideplusbar) && (
+            {(!hidePlusBar) && (
                 <div className = 'plusbar'>
                     <button className = 'sidebarclosebtn' onClick = { togglePlusbar }>X</button>
-                    <div className = 'entryname'>
+                    <div className = 'entryName'>
                         Enter entry name
                         <form onSubmit = { handleEntrySubmit }>
                             <div className = 'formitem'>
                                 <div className = "labelblock"><label  style = {{ color: 'white' }}> Entry Name </label></div>
                                 <input 
                                     type = 'text'
-                                    value = { newentry } 
+                                    value = { newEntry } 
                                     onChange = {
                                         event => {
                                             setNewEntry(event.target.value);
@@ -35,7 +35,7 @@ const Bar = ({togglePlusbar, hideplusbar, newentry, setNewEntry, handleEntrySubm
                                 />
                             </div>
                             <input type = 'submit' />
-                            <Error showerror = { showerroressage } errormessage = { errormessage }/>
+                            <Error showerror = { showErrorMessage } errorMessage = { errorMessage }/>
                         </form>
                     </div>
                 </div>
@@ -44,58 +44,60 @@ const Bar = ({togglePlusbar, hideplusbar, newentry, setNewEntry, handleEntrySubm
     );
 };
 
-const Databaseplusbar = ({bardatabasename}) => {
-    const databasename = bardatabasename;
-    const [newentry, setNewEntry] = useState('');
-    const [hideplusbar, setHidePlusbar] = useState(true);
-    const [showerroressage, setShowErrorMessage] = useState(false);
-    const [errormessage, setErrorMessage] = useState('');
+const Databaseplusbar = ({barDatabaseName}) => {
+    const databaseName = barDatabaseName;
+    const [newEntry, setNewEntry] = useState('');
+    const [hidePlusBar, setHidePlusbar] = useState(true);
+    const [showErrorMessage, setShowErrorMessage] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
     //Toggles plusbar 
     function togglePlusbar(event) {
         event.preventDefault();
-        setHidePlusbar(!hideplusbar);
+        setHidePlusbar(!hidePlusBar);
     }
 
     //Handles submission of new password
     async function handleEntrySubmit(event) {
-        console.log('databasename:', databasename);
+        console.log('databaseName:', databaseName);
         event.preventDefault();
-        const entryname = newentry;
+        const entryName = newEntry;
         //Checks if database name is already used
-        const entryexists = await axios.get(`${api_url}/databases/checkentries/${databasename}/${entryname}`);
+        const entryExists = await axios.get(`${api_url}/databases/checkentries/${databaseName}/${entryName}`);
         
         //User enters a blank name for entry
-        if (entryname === '') {
+        if (entryName === '') {
             //Set error message on
             setShowErrorMessage(true);
             setErrorMessage('Database entry must have a name');
         }
         //User enters an acceptable entry name
-        else if (!entryexists.data.exists) {
-            const createdentry = await axios.post(`${api_url}/entries/create/${databasename}`, { entryname });
+        else if (!entryExists.data.exists) {
+            const createdentry = await axios.post(`${api_url}/entries/create/${databaseName}`, { entryName });
             setNewEntry('');
             setHidePlusbar(true);
+            //Refreshes page to show new entry made
+            navigate('/database');
         }
         //If entry name is already used by another entry
-        else if (entryexists.data.exists) {
+        else if (entryExists.data.exists) {
             //Set error message on
             setShowErrorMessage(true);
-            setErrorMessage(`The database entry name ${entryname} has been taken`);
+            setErrorMessage(`The database entry name ${entryName} has been taken`);
         }
     }
 
     return (
         <Bar 
             togglePlusbar = { togglePlusbar } 
-            hideplusbar = { hideplusbar }
-            newentry = { newentry }
+            hidePlusBar = { hidePlusBar }
+            newEntry = { newEntry }
             setNewEntry = { setNewEntry }
             handleEntrySubmit = { handleEntrySubmit }
             setShowErrorMessage = { setShowErrorMessage } 
-            showerroressage = { showerroressage }
-            errormessage = {errormessage}
+            showErrorMessage = { showErrorMessage }
+            errorMessage = {errorMessage}
         />
     );
 };

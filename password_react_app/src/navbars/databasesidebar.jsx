@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import axios from "axios";
 axios.defaults.withCredentials = true;
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -7,12 +7,13 @@ import './navbars.css';
 import Error from "../pages/error.jsx";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { FaRegTrashCan } from "react-icons/fa6";
+import { IoPencil } from "react-icons/io5";
 
 const api_url = 'http://localhost:8000';
 
 //Panel for entering new username
-const Newnamepanel = ({ hidenamepanel, newname, setNewName, setShowErrorMessage, showerroressage, errormessage, handleNameSubmit }) => {
-    if (hidenamepanel) {
+const Newnamepanel = ({ hideNamePanel, newName, setNewName, setShowErrorMessage, showErrorMessage, errorMessage, handleNameSubmit }) => {
+    if (hideNamePanel) {
         return (<></>);
     }
     return (
@@ -23,7 +24,7 @@ const Newnamepanel = ({ hidenamepanel, newname, setNewName, setShowErrorMessage,
                     <div className = "labelblock"><label> New Name </label></div>
                     <input 
                         type = 'text'
-                        value = { newname } 
+                        value = { newName } 
                         onChange = {
                             event => {
                                 setNewName(event.target.value);
@@ -34,15 +35,15 @@ const Newnamepanel = ({ hidenamepanel, newname, setNewName, setShowErrorMessage,
                     />
                 </div>
                 <input type = 'submit' />
-                <Error showerror = { showerroressage } errormessage = { errormessage }/>
+                <Error showerror = { showErrorMessage } errorMessage = { errorMessage }/>
             </form>
         </div>
     );
 }
 
 //Panel for entering new password
-const Newpasswordpanel = ({ hidepasswordpanel, newpassword, setNewPassword, setShowErrorMessage, showerroressage, errormessage, handlePasswordSubmit, toggleEye, toggleEye2, hidePassword, hidePassword2 }) => {
-    if (hidepasswordpanel) {
+const Newpasswordpanel = ({ hidePasswordPanel, newPassword, setNewPassword, setShowErrorMessage, showErrorMessage, errorMessage, handlePasswordSubmit, toggleEye, toggleEye2, hidePassword, hidePassword2 }) => {
+    if (hidePasswordPanel) {
         return (<></>);
     }
     return (
@@ -53,10 +54,10 @@ const Newpasswordpanel = ({ hidepasswordpanel, newpassword, setNewPassword, setS
                     <div className = "labelblock"><label> New Password </label><button onClick = { toggleEye }>{ hidePassword ? <FaRegEyeSlash /> : <FaRegEye /> }</button></div>
                     <input 
                         type = { hidePassword ? 'password' : 'text' }
-                        value = { newpassword.password } 
+                        value = { newPassword.password } 
                         onChange = {
                             event => {
-                                setNewPassword({ ...newpassword, password: event.target.value });
+                                setNewPassword({ ...newPassword, password: event.target.value });
                                 //Set error message off
                                 setShowErrorMessage(false);
                             }
@@ -67,10 +68,10 @@ const Newpasswordpanel = ({ hidepasswordpanel, newpassword, setNewPassword, setS
                     <div className = "labelblock"><label> Confirm Password </label><button onClick = { toggleEye2 }>{ hidePassword2 ? <FaRegEyeSlash /> : <FaRegEye /> }</button></div>
                     <input 
                         type = { hidePassword2 ? 'password' : 'text' }
-                        value = { newpassword.confirmpassword } 
+                        value = { newPassword.confirmpassword } 
                         onChange = {
                             event => {
-                                setNewPassword({ ...newpassword, confirmpassword: event.target.value });
+                                setNewPassword({ ...newPassword, confirmpassword: event.target.value });
                                 //Set error message off
                                 setShowErrorMessage(false);
                             }
@@ -78,15 +79,15 @@ const Newpasswordpanel = ({ hidepasswordpanel, newpassword, setNewPassword, setS
                     />
                 </div>
                 <input type = 'submit' />
-                <Error showerror = { showerroressage } errormessage = { errormessage }/>
+                <Error showerror = { showErrorMessage } errorMessage = { errorMessage }/>
             </form>
         </div>
     );
 }
 
 //Panel for deleting database
-const Deletepanel = ( {deleteDatabase, toggleDelete, hidedelete} ) => {
-    if (hidedelete) {
+const Deletepanel = ( {deleteDatabase, toggleDelete, hideDelete} ) => {
+    if (hideDelete) {
         return (<></>);
     }
     return (
@@ -100,8 +101,8 @@ const Deletepanel = ( {deleteDatabase, toggleDelete, hidedelete} ) => {
     );
 }
 
-const Bar = ({toggleSidebar, toggleNamePanel, togglePasswordPanel, toggleDelete, hidesidebar, hidedelete, hidenamepanel, newname, setNewName, handleNameSubmit, hidepasswordpanel, newpassword, setNewPassword, setShowErrorMessage, showerroressage, errormessage, handlePasswordSubmit, toggleEye, toggleEye2, hidePassword, hidePassword2, deleteDatabase}) => {
-        if (hidesidebar) {
+const Bar = ({toggleSidebar, toggleNamePanel, togglePasswordPanel, toggleDelete, hideSidebar, hideDelete, hideNamePanel, newName, setNewName, handleNameSubmit, hidePasswordPanel, newPassword, setNewPassword, setShowErrorMessage, showErrorMessage, errorMessage, handlePasswordSubmit, toggleEye, toggleEye2, hidePassword, hidePassword2, deleteDatabase}) => {
+        if (hideSidebar) {
             return (
                 <button type = 'button' className = 'logo' onClick = { toggleSidebar }>{ <BsThreeDotsVertical /> }</button>
             );
@@ -109,58 +110,58 @@ const Bar = ({toggleSidebar, toggleNamePanel, togglePasswordPanel, toggleDelete,
         return (
             <div className = 'sidebar'>
                 <button className = 'sidebarclosebtn' onClick = { toggleSidebar }>x</button>
-                <div className = 'sidebars' onClick = { toggleNamePanel }>Change Database Name</div>
+                <div className = 'sidebars' onClick = { toggleNamePanel }><IoPencil /> Change Database Name</div>
                 <Newnamepanel 
-                    hidenamepanel = { hidenamepanel }
-                    newname = { newname }
+                    hideNamePanel = { hideNamePanel }
+                    newName = { newName }
                     setNewName = { setNewName }
                     setShowErrorMessage = { setShowErrorMessage } 
-                    showerroressage = { showerroressage }
-                    errormessage = { errormessage }
+                    showErrorMessage = { showErrorMessage }
+                    errorMessage = { errorMessage }
                     handleNameSubmit = { handleNameSubmit }
                 />
-                <div className = 'sidebars' onClick = { togglePasswordPanel }>Change Password</div>
+                <div className = 'sidebars' onClick = { togglePasswordPanel }><IoPencil /> Change Password</div>
                 <Newpasswordpanel 
-                    hidepasswordpanel = { hidepasswordpanel }
-                    newpassword = { newpassword }
+                    hidePasswordPanel = { hidePasswordPanel }
+                    newPassword = { newPassword }
                     setNewPassword = { setNewPassword }
                     setShowErrorMessage = { setShowErrorMessage } 
-                    showerroressage = { showerroressage }
-                    errormessage = { errormessage }
+                    showErrorMessage = { showErrorMessage }
+                    errorMessage = { errorMessage }
                     handlePasswordSubmit = { handlePasswordSubmit }
                     toggleEye = { toggleEye }
                     toggleEye2 = { toggleEye2 } 
                     hidePassword = { hidePassword } 
                     hidePassword2 = { hidePassword2 }
                 />
-                <div className = 'sidebars'  onClick = { toggleDelete }>Delete Database</div>
+                <div className = 'sidebars'  onClick = { toggleDelete }> <FaRegTrashCan />Delete Database</div>
                 <Deletepanel 
                     deleteDatabase = { deleteDatabase }
                     toggleDelete = { toggleDelete }
-                    hidedelete = { hidedelete }
+                    hideDelete = { hideDelete }
                 />
             </div>
         );
     }
 
-const Databasesidebar = ({bardatabasename}) => {
-    const databasename = bardatabasename;
-    const [newname, setNewName] = useState('');
-    const [hidesidebar, setHideSidebar] = useState(true);
-    const [showerroressage, setShowErrorMessage] = useState(false);
-    const [errormessage, setErrorMessage] = useState('');
-    const [hidenamepanel, setHideNamePanel] = useState(true);
-    const [hidepasswordpanel, setHidePasswordPanel] = useState(true);
-    const [newpassword, setNewPassword] = useState({ password: '', confirmpassword: '' });
+const Databasesidebar = ({barDatabaseName}) => {
+    const databaseName = barDatabaseName;
+    const [newName, setNewName] = useState('');
+    const [hideSidebar, setHideSidebar] = useState(true);
+    const [showErrorMessage, setShowErrorMessage] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [hideNamePanel, setHideNamePanel] = useState(true);
+    const [hidePasswordPanel, setHidePasswordPanel] = useState(true);
+    const [newPassword, setNewPassword] = useState({ password: '', confirmpassword: '' });
     const [hidePassword, setHidePassword] = useState(true);
     const [hidePassword2, setHidePassword2] = useState(true);
-    const [hidedelete, setHideDelete] = useState(true);
+    const [hideDelete, setHideDelete] = useState(true);
     const navigate = useNavigate();
 
     //Toggles sidebar 
     function toggleSidebar(event) {
         event.preventDefault();
-        setHideSidebar(!hidesidebar);
+        setHideSidebar(!hideSidebar);
     }
 
     //Toggles eye btn
@@ -178,7 +179,7 @@ const Databasesidebar = ({bardatabasename}) => {
     //Toggles name panel
     function toggleNamePanel(event) {
         event.preventDefault();
-        setHideNamePanel(!hidenamepanel);
+        setHideNamePanel(!hideNamePanel);
         //Make sure other panels are hidden
         setHideDelete(true);
         setHidePasswordPanel(true);
@@ -187,7 +188,7 @@ const Databasesidebar = ({bardatabasename}) => {
     //Toggles password panel 
     function togglePasswordPanel(event) {
         event.preventDefault();
-        setHidePasswordPanel(!hidepasswordpanel);
+        setHidePasswordPanel(!hidePasswordPanel);
         //Make sure other panels are hidden
         setHideNamePanel(true);
         setHideDelete(true);
@@ -196,7 +197,7 @@ const Databasesidebar = ({bardatabasename}) => {
     //Toggles delete panel 
     function toggleDelete(event) {
         event.preventDefault();
-        setHideDelete(!hidedelete);
+        setHideDelete(!hideDelete);
         //Make sure other panels are hidden
         setHidePasswordPanel(true);
         setHidePasswordPanel(true);
@@ -207,7 +208,7 @@ const Databasesidebar = ({bardatabasename}) => {
         event.preventDefault();
 
         //Deletes all tables for given database
-        const deletedatabase = await axios.delete(`${api_url}/databases/delete/${databasename}`);
+        const deletedatabase = await axios.delete(`${api_url}/databases/delete/${databaseName}`);
 
         //Deletes session for database
         const locked = await axios.get(`${api_url}/deleteloginsession`);
@@ -218,46 +219,46 @@ const Databasesidebar = ({bardatabasename}) => {
 
     //Handles submission of new password
     async function handleNameSubmit(event) {
-        console.log('databasename:', databasename);
+        console.log('databaseName:', databaseName);
         event.preventDefault();
-        const newdatabasename = newname;
+        const newdatabaseName = newName;
         //Checks if database name is already used
-        const databaseexists = await axios.get(`${api_url}/databases/${newdatabasename}`);
+        const databaseExists = await axios.get(`${api_url}/databases/${newdatabaseName}`);
         
-        console.log('newdatabasename:', newdatabasename);
-        if (newdatabasename === '') {
+        console.log('newdatabaseName:', newdatabaseName);
+        if (newdatabaseName === '') {
             //Set error message on
             setShowErrorMessage(true);
             setErrorMessage('Database must have a name');
         }
-        else if (!databaseexists.data.exists) {
-            const changedname = await axios.patch(`${api_url}/databases/setname/${databasename}`, { newdatabasename });
+        else if (!databaseExists.data.exists) {
+            const changedname = await axios.patch(`${api_url}/databases/setname/${databaseName}`, { newdatabaseName });
             setNewName('');
             setHideNamePanel(true);
             setHideSidebar(true);
-            const changedsessionname = await axios.get(`${api_url}/setsessiondatabase/${newdatabasename}`);
+            const changedsessionname = await axios.get(`${api_url}/setsessiondatabase/${newdatabaseName}`);
             const sessiondatabase = await axios.get(`${api_url}/getsessiondatabase`);
-            console.log("front end databasename: ", sessiondatabase.data.databasename);
+            console.log("front end databaseName: ", sessiondatabase.data.databaseName);
             navigate(`/database/`);
         }
         //If database name is already used by another database
-        else if (databaseexists.data.exists && databasename !== newdatabasename) {
+        else if (databaseExists.data.exists && databaseName !== newdatabaseName) {
             //Set error message on
             setShowErrorMessage(true);
-            setErrorMessage(`The database name ${newdatabasename} has been taken`);
+            setErrorMessage(`The database name ${newdatabaseName} has been taken`);
         }
     }
 
     //Handles submission of new password
     async function handlePasswordSubmit(event) {
-        console.log('databasename:', databasename);
+        console.log('databaseName:', databaseName);
         event.preventDefault();
-        const password = newpassword.password;
-        const confirmpassword = newpassword.confirmpassword;
+        const password = newPassword.password;
+        const confirmpassword = newPassword.confirmpassword;
         //Checks if password is old password
-        const correct = await axios.get(`${api_url}/databases/password/login/${databasename}/${password}`);
+        const correct = await axios.get(`${api_url}/databases/password/login/${databaseName}/${password}`);
         console.log(correct.data);
-        console.log('newpassword state:', newpassword);
+        console.log('newPassword state:', newPassword);
         //New password is the same as old password
         if (correct.data.correct) {
             //Set error message on
@@ -271,7 +272,7 @@ const Databasesidebar = ({bardatabasename}) => {
             setErrorMessage('Passwords do not match');
         }
         else {
-            const changedpassword = await axios.patch(`${api_url}/databases/setpassword/${databasename}`, { password });
+            const changedpassword = await axios.patch(`${api_url}/databases/setpassword/${databaseName}`, { password });
             setNewPassword({ password: '', confirmpassword: '' });
             setHidePasswordPanel(true);
         }
@@ -280,21 +281,21 @@ const Databasesidebar = ({bardatabasename}) => {
     return (
         <Bar 
             toggleSidebar = { toggleSidebar } 
-            hidesidebar = { hidesidebar }
+            hideSidebar = { hideSidebar }
             toggleNamePanel= {toggleNamePanel}
             togglePasswordPanel = { togglePasswordPanel } 
             toggleDelete = { toggleDelete }
-            hidedelete = { hidedelete }
-            hidenamepanel = { hidenamepanel }
-            newname = { newname }
+            hideDelete = { hideDelete }
+            hideNamePanel = { hideNamePanel }
+            newName = { newName }
             setNewName = { setNewName }
             handleNameSubmit = { handleNameSubmit }
-            hidepasswordpanel = { hidepasswordpanel }
-            newpassword = { newpassword }
+            hidePasswordPanel = { hidePasswordPanel }
+            newPassword = { newPassword }
             setNewPassword = { setNewPassword }
             setShowErrorMessage = { setShowErrorMessage } 
-            showerroressage = { showerroressage }
-            errormessage = { errormessage }
+            showErrorMessage = { showErrorMessage }
+            errorMessage = { errorMessage }
             handlePasswordSubmit = { handlePasswordSubmit }
             toggleEye = { toggleEye }
             toggleEye2 = { toggleEye2 } 

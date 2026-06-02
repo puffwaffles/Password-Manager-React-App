@@ -1,15 +1,15 @@
 import React from 'react';
 import './pages.css';
 
-const Error = ({showerror, errormessage}) => {
+const Error = ({showerror, errorMessage}) => {
     
     //Creates popup button if popup is toggled on
-    const Message = ({showerror, errormessage}) => {
+    const Message = ({showerror, errorMessage}) => {
         console.log(showerror);
-        console.log(errormessage);
+        console.log(errorMessage);
         if (showerror) {
             return (
-            <h4 style = {{ color: 'red' }}>{ errormessage }</h4>
+            <h4 style = {{ color: 'red' }}>{ errorMessage }</h4>
         ); 
         }
         return(<></>);
@@ -17,7 +17,7 @@ const Error = ({showerror, errormessage}) => {
     }
 
     return (
-        <Message showerror = { showerror } errormessage = { errormessage }/>
+        <Message showerror = { showerror } errorMessage = { errorMessage }/>
     );
 };
 

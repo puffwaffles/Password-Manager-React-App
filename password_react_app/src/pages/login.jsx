@@ -9,26 +9,26 @@ import Error404 from './error404.jsx';
 const api_url = 'http://localhost:8000';
 
 const Login = () => {
-    const [databasename, setDatabasename] = useState('');
+    const [databaseName, setdatabaseName] = useState('');
     const [loading, setLoading] = useState(true);
     const [loginpassword, setLoginPassword] = useState('');
-    const [showerroressage, setShowErrorMessage] = useState(false);
+    const [showErrorMessage, setShowErrorMessage] = useState(false);
     const [hidePassword, setHidePassword] = useState(true);
     const navigate = useNavigate();
     const location = useLocation();
 
-    const sessiondatabasename = async () => {
+    const sessiondatabaseName = async () => {
         const sessiondatabase = await axios.get(`${api_url}/getsessiondatabase`);
-        console.log("front end databasename: ", sessiondatabase.data.databasename);
+        console.log("front end databaseName: ", sessiondatabase.data.databaseName);
         console.log("full response: ", sessiondatabase.data);
-        const sessdatabasename = sessiondatabase.data.databasename;
+        const sessdatabaseName = sessiondatabase.data.databaseName;
         setLoading(false);
-        setDatabasename(sessdatabasename);
+        setdatabaseName(sessdatabaseName);
     };
 
     //Update list of database entries
     useEffect(() => {
-        sessiondatabasename();
+        sessiondatabaseName();
     }, [location]);
 
 
@@ -45,20 +45,20 @@ const Login = () => {
 
     //Handles submission of database name and password
     async function handleSubmit(event) {
-        console.log('databasename:', databasename);
+        console.log('databaseName:', databaseName);
         event.preventDefault();
         const password = loginpassword;
         //Checks if password is correct
-        const correct = await axios.get(`${api_url}/databases/password/login/${databasename}/${password}`);
+        const correct = await axios.get(`${api_url}/databases/password/login/${databaseName}/${password}`);
         console.log(correct.data);
         console.log(correct.data.correct);
         console.log('password:', loginpassword);
-        const correctpassword = await axios.get(`${api_url}/databases/login/${databasename}`);
+        const correctpassword = await axios.get(`${api_url}/databases/login/${databaseName}`);
         console.log('correct password: ', correctpassword.data.actualpassword);
         //If password is correct, travel to database page
         if (correct.data.correct) {
             //Set login
-            const login = await axios.get(`${api_url}/setloginsession/${databasename}`);
+            const login = await axios.get(`${api_url}/setloginsession/${databaseName}`);
             console.log(login.data);
             navigate(`/database`);
         }
@@ -71,7 +71,7 @@ const Login = () => {
     if (loading) {
         return(<h1>Loading page</h1>);
     }
-    if (!databasename) {
+    if (!databaseName) {
         return(<Error404 />);
     }
     else {
@@ -93,7 +93,7 @@ const Login = () => {
                             }
                         />
                     </div>
-                    <Error showerror = { showerroressage } errormessage = 'Incorrect password'/>  
+                    <Error showerror = { showErrorMessage } errorMessage = 'Incorrect password'/>  
                     <div className = "twobtns">
                         <input type = 'submit' />
                         <button type = 'button' className = 'closebtn' onClick = { goBack }>Go Back</button>

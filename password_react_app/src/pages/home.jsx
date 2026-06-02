@@ -20,9 +20,9 @@ const Home = () => {
     };
 
     //Sets database name for login to and navigates to database login
-    const goToLogin = async (databasename) => {
+    const goToLogin = async (databaseName) => {
         //Set login
-        const login = await axios.get(`${api_url}/setsessiondatabase/${databasename}`);
+        const login = await axios.get(`${api_url}/setsessiondatabase/${databaseName}`);
         navigate('/login');
     };
 

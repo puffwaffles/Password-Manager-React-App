@@ -33,9 +33,9 @@ app.use(
 );
 
 //Set session login and database when user logs in
-app.get("/setloginsession/:databasename", (request, result) => {
-    const { databasename } = request.params;
-    request.session.databasename = databasename;
+app.get("/setloginsession/:databaseName", (request, result) => {
+    const { databaseName } = request.params;
+    request.session.databaseName = databaseName;
     request.session.login = true;
     result.send('Session login and database name set');
     console.log(request.session);
@@ -50,39 +50,39 @@ app.get("/getloginsession", (request, result) => {
 
 //Retrieve session database name
 app.get("/getsessiondatabase", (request, result) => {
-    const databasename = request.session.databasename;
-    console.log("backend databasename: ", databasename);
+    const databaseName = request.session.databaseName;
+    console.log("backend databaseName: ", databaseName);
     result.set('Cache-Control', 'no-store');
-    result.json({databasename: databasename});
+    result.json({databaseName: databaseName});
 });
 
 //Retrieve session entry name
 app.get("/getsessionentry", (request, result) => {
-    const entryname = request.session.entryname;
-    console.log('backend entryname in getentryname: ', entryname);
+    const entryName = request.session.entryName;
+    console.log('backend entryName in getentryName: ', entryName);
     result.set('Cache-Control', 'no-store');
-    result.json({entryname: entryname});
+    result.json({entryName: entryName});
 });
 
 //Set session database name
-app.get("/setsessiondatabase/:databasename", (request, result) => {
-    const { databasename } = request.params;
-    request.session.databasename = databasename;
+app.get("/setsessiondatabase/:databaseName", (request, result) => {
+    const { databaseName } = request.params;
+    request.session.databaseName = databaseName;
     result.send('Session database name set');
 });
 
 //Set session database entry
-app.get("/setsessionentry/:entryname", (request, result) => {
-    const { entryname } = request.params;
-    request.session.entryname = entryname;
-    console.log('backend entryname: ', entryname);
+app.get("/setsessionentry/:entryName", (request, result) => {
+    const { entryName } = request.params;
+    request.session.entryName = entryName;
+    console.log('backend entryName: ', entryName);
     result.send('Session entry name set');
 });
 
 //Unset entry name
 app.get("/deletesessionentry", (request, result) => {
-    request.session.entryname = null;
-    console.log('backend entryname after setting to null: ', request.session.entryname);
+    request.session.entryName = null;
+    console.log('backend entryName after setting to null: ', request.session.entryName);
     result.send('Session entry name set to null');
 });
 
@@ -103,40 +103,40 @@ app.get("/deleteloginsession", (request, result) => {
 app.get("/databases", dbqueries.getDatabases);
 
 //Checks for database by name
-app.get("/databases/:databasename", dbqueries.checkDatabase);
+app.get("/databases/:databaseName", dbqueries.checkDatabase);
 
 //Creates a new database
 app.post("/databases/:database", dbqueries.createDatabase);
 
 //Checks password by database name
-app.get("/databases/password/login/:databasename/:password", dbqueries.checkDatabasePassword);
+app.get("/databases/password/login/:databaseName/:password", dbqueries.checkDatabasePassword);
 
 //gets password by database name
-app.get("/databases/login/:databasename", dbqueries.getDatabasePassword);
+app.get("/databases/login/:databaseName", dbqueries.getDatabasePassword);
 
 //Deletes a database
-app.delete("/databases/delete/:databasename", dbqueries.deleteDatabase);
+app.delete("/databases/delete/:databaseName", dbqueries.deleteDatabase);
 
 //Sets name for a given database
-app.patch("/databases/setname/:databasename", dbqueries.updateDatabaseName);
+app.patch("/databases/setname/:databaseName", dbqueries.updatedatabaseName);
 
 //Sets password for a given database
-app.patch("/databases/setpassword/:databasename", dbqueries.updateDatabasePassword);
+app.patch("/databases/setpassword/:databaseName", dbqueries.updateDatabasePassword);
 
 //Displays all entries for a given database
-app.get("/databases/entries/:databasename", dbqueries.getEntries);
+app.get("/databases/entries/:databaseName", dbqueries.getEntries);
 
 //Checks database for a given entry
-app.get("/databases/checkentries/:databasename/:entryname", dbqueries.checkEntry);
+app.get("/databases/checkentries/:databaseName/:entryName", dbqueries.checkEntry);
 
 //Creates a new entry for a given database
-app.post("/entries/create/:databasename", dbqueries.createEntry);
+app.post("/entries/create/:databaseName", dbqueries.createEntry);
 
 //Deletes a database entry
-app.delete("/entries/delete/:databasename/:entryname", dbqueries.deleteEntry);
+app.delete("/entries/delete/:databaseName/:entryName", dbqueries.deleteEntry);
 
 //Gets all fields for a given entry
-app.get("/databases/entries/fields/:databasename/:entryname", dbqueries.getEntryFields);
+app.get("/databases/entries/fields/:databaseName/:entryName", dbqueries.getEntryFields);
 
 app.listen(8000, () => {
     console.log('App running on port 8000');
