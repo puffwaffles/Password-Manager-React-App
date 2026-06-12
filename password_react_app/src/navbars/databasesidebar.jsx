@@ -4,7 +4,7 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 import { BsThreeDotsVertical } from "react-icons/bs";
 import './navbars.css';
-import Error from "../pages/error.jsx";
+import Errorprop from "../pages/error.jsx";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { IoPencil } from "react-icons/io5";
@@ -35,7 +35,7 @@ const Newnamepanel = ({ hideNamePanel, newName, setNewName, setShowErrorMessage,
                     />
                 </div>
                 <input type = 'submit' />
-                <Error showerror = { showErrorMessage } errorMessage = { errorMessage }/>
+                <Errorprop showerror = { showErrorMessage } errorMessage = { errorMessage }/>
             </form>
         </div>
     );
@@ -79,7 +79,7 @@ const Newpasswordpanel = ({ hidePasswordPanel, newPassword, setNewPassword, setS
                     />
                 </div>
                 <input type = 'submit' />
-                <Error showerror = { showErrorMessage } errorMessage = { errorMessage }/>
+                <Errorprop showerror = { showErrorMessage } errorMessage = { errorMessage }/>
             </form>
         </div>
     );
@@ -221,31 +221,32 @@ const Databasesidebar = ({barDatabaseName}) => {
     async function handleNameSubmit(event) {
         console.log('databaseName:', databaseName);
         event.preventDefault();
-        const newdatabaseName = newName;
+        const newDatabaseName = newName;
         //Checks if database name is already used
-        const databaseExists = await axios.get(`${api_url}/databases/${newdatabaseName}`);
+        const databaseExists = await axios.get(`${api_url}/databases/${newDatabaseName}`);
         
-        console.log('newdatabaseName:', newdatabaseName);
-        if (newdatabaseName === '') {
+        console.log('newDatabaseName:', newDatabaseName);
+        if (newDatabaseName === '') {
             //Set error message on
             setShowErrorMessage(true);
             setErrorMessage('Database must have a name');
         }
         else if (!databaseExists.data.exists) {
-            const changedname = await axios.patch(`${api_url}/databases/setname/${databaseName}`, { newdatabaseName });
+            console.log(newDatabaseName);
+            const changedname = await axios.patch(`${api_url}/databases/setname/${databaseName}`, { newDatabaseName });
             setNewName('');
             setHideNamePanel(true);
             setHideSidebar(true);
-            const changedsessionname = await axios.get(`${api_url}/setsessiondatabase/${newdatabaseName}`);
+            const changedsessionname = await axios.get(`${api_url}/setsessiondatabase/${newDatabaseName}`);
             const sessiondatabase = await axios.get(`${api_url}/getsessiondatabase`);
             console.log("front end databaseName: ", sessiondatabase.data.databaseName);
             navigate(`/database/`);
         }
         //If database name is already used by another database
-        else if (databaseExists.data.exists && databaseName !== newdatabaseName) {
+        else if (databaseExists.data.exists && databaseName !== newDatabaseName) {
             //Set error message on
             setShowErrorMessage(true);
-            setErrorMessage(`The database name ${newdatabaseName} has been taken`);
+            setErrorMessage(`The database name ${newDatabaseName} has been taken`);
         }
     }
 

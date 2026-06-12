@@ -10,7 +10,7 @@ import Error404 from './error404.jsx';
 const api_url = 'http://localhost:8000';
 
 const Database = () => {
-    const [databaseName, setdatabaseName] = useState('');
+    const [databaseName, setDatabaseName] = useState('');
     const [loading, setLoading] = useState(true);
     const [loggedin, setLoggedin] = useState(false);
     const [entries, setEntries] = useState([]);
@@ -21,12 +21,10 @@ const Database = () => {
     const sessiondetails = async () => {
         const sessionlogin = await axios.get(`${api_url}/getloginsession`);
         const sessiondatabase = await axios.get(`${api_url}/getsessiondatabase`);
-        console.log("front end login: ", sessionlogin.data.login);
-        console.log("front end databaseName: ", sessiondatabase.data.databaseName);
         const sesslogin = sessionlogin.data.login;
         const sessdatabaseName = sessiondatabase.data.databaseName;
         setLoggedin(sesslogin);
-        setdatabaseName(sessdatabaseName);
+        setDatabaseName(sessdatabaseName);
         setLoading(false);
         await retrieveEntries(sessdatabaseName);
     };
@@ -39,7 +37,6 @@ const Database = () => {
     //Calls function in index.js to retrieve all created database entries
     const retrieveEntries = async (databaseName) => {
         const result = await axios.get(`${api_url}/databases/entries/${ databaseName }`); 
-        console.log("entries: ", result.data);
         setEntries(result.data);
     }; 
     
@@ -51,9 +48,9 @@ const Database = () => {
     };
 
     //Sets entry name for entry to and navigates to entry
-    const goToEntry = async (entryName) => {
-        //Set login
-        const login = await axios.get(`${api_url}/setsessionentry/${entryName}`);
+    const goToEntry = async (entryId) => {
+        //Set entry
+        const entry = await axios.get(`${api_url}/setsessionentry/${entryId}`);
         navigate('/database/entry');
     };
 
@@ -75,7 +72,7 @@ const Database = () => {
                         <h2>Password Database { databaseName }</h2>
                     </div>
                     <ul className = 'leftlist'>
-                        {entries.map(entry => <li className = 'listlinks' key = {entry.name} onClick = {() => goToEntry(entry.name)}>{entry.name}</li>)}
+                        {entries.map(entry => <li className = 'listlinks' key = {entry.name} onClick = {() => goToEntry(entry.entry_id)}>{entry.name}</li>)}
                     </ul>
                 </div>
                 <div className = 'botbar'>

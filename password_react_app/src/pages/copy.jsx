@@ -4,22 +4,20 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 import './pages.css';
 import { mappings } from './columnmap.js';
-import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
-import { IoPencil } from "react-icons/io5";
-import Entrysidebar from '../navbars/entrysidebar.jsx';
+import Copysidebar from '../navbars/copysidebar.jsx';
 import Error404 from './error404.jsx';
 const api_url = 'http://localhost:8000';
 
-const Entry = () => {
+const Copy = () => {
     const [loading, setLoading] = useState(true);
     const [loggedin, setLoggedin] = useState(false);
     const [databaseName, setDatabaseName] = useState('');
     const [entryId, setEntryId] = useState('');
+    const [dateUpdated, setDateUpdated] = useState('');
     const [entryName, setEntryName] = useState('');
     const [entryFields, setEntryFields] = useState([]);
-    const [prevEntries, setPrevEntries] = useState([]);
     const [hidePassword, setHidePassword] = useState(true);
     const navigate = useNavigate();
     const location = useLocation();
@@ -28,14 +26,18 @@ const Entry = () => {
         const sessionlogin = await axios.get(`${api_url}/getloginsession`);
         const sessiondatabase = await axios.get(`${api_url}/getsessiondatabase`);
         const sessionentry = await axios.get(`${api_url}/getsessionentry`);
+        const sessioncopy = await axios.get(`${api_url}/getsessioncopy`);
+
         const sesslogin = sessionlogin.data.login;
         const sessdatabaseName = sessiondatabase.data.databaseName;
         const sessentry = sessionentry.data.entryId;
+        const sesscopy = sessioncopy.data.dateUpdated;
         setLoggedin(sesslogin);
         setDatabaseName(sessdatabaseName);
         setEntryId(sessentry);
+        setDateUpdated(sesscopy);
         setLoading(false);
-        await retrieveEntryFields(sessdatabaseName, sessentry);
+        await retrieveEntryFields(sessdatabaseName, sessentry, sesscopy);
     };
 
     //Update list of database entries
@@ -44,11 +46,10 @@ const Entry = () => {
     }, [location]);
 
     //Calls function in index.js to retrieve all created entry fields
-    const retrieveEntryFields = async (databaseName, entryId) => {
-        const result = await axios.get(`${api_url}/databases/entries/fields/${ databaseName }/${ entryId }`); 
-        setEntryFields(result.data.mainfields);
-        setEntryName(result.data.mainfields.name)
-        setPrevEntries(result.data.copies);
+    const retrieveEntryFields = async (databaseName, entryId, dateUpdated) => {
+        const result = await axios.get(`${api_url}/entries/copies/fields/${ databaseName }/${ entryId }/${ dateUpdated }`); 
+        setEntryFields(result.data);
+        setEntryName(result.data.name);
     };   
 
     //Toggles eye btn
@@ -57,22 +58,10 @@ const Entry = () => {
         setHidePassword(!hidePassword);
     }
 
-    //Leaves entry page
+    //Leaves copy page
     const goBack = async () => {
-        const locked = await axios.get(`${api_url}/deletesessionentry`);
-        navigate('/database');
-    };
-
-    //Go to edit entry page
-    const goEdit = async () => {
-        navigate('/database/editentry');
-    };
-
-    //Go to previous version of entry page
-    const goPrev = async (dateUpdated) => {
-        //Sets date updated to identify which version to visit
-        const copy = await axios.get(`${api_url}/setsessioncopy/${dateUpdated}`);
-        navigate('/database/copy');
+        const locked = await axios.get(`${api_url}/deletesessioncopy`);
+        navigate('/database/entry');
     };
 
     //Convert datetime to local time
@@ -111,7 +100,7 @@ const Entry = () => {
     if (loading) {
         return(<h1>Loading page</h1>);
     }
-    if (!entryName || !loggedin) {
+    if (!entryId || !loggedin) {
         return(<Error404 />);
     }
     else {
@@ -119,12 +108,11 @@ const Entry = () => {
             <div className = 'barbox'>
                 <div className = 'topbar'>
                     <button className = 'logo' onClick = { goBack }><IoIosArrowRoundBack /></button>
-                     <button className = 'logo' onClick = { toggleEye }>
+                    <button className = 'logo' onClick = { toggleEye }>
                         { hidePassword ? <FaRegEyeSlash /> : <FaRegEye /> }
                     </button>
-                    <button className = 'logo' onClick = { goEdit }><IoPencil /></button>
                     <div>
-                        <Entrysidebar barDatabaseName = {databaseName} barEntryId = {entryId}/>
+                        <Copysidebar barDatabaseName = {databaseName} barEntryId = {entryId} barDateUpdated = {dateUpdated}/>
                     </div>
                     
                 </div>
@@ -135,16 +123,6 @@ const Entry = () => {
                             key != 'entry_id' && key != 'name' && value != null && <li key = { key }>{ mappings[key] }: { textFormat(key, value) }</li>
                         ))}
                     </ul>
-                    {prevEntries.length > 0 && (
-                            <ul className = 'leftlist'>
-                                Previous Versions
-                                {prevEntries.map((field) => (
-                                    <li className = 'listlinks' key = { field.date_updated }  onClick = {() => goPrev(encodeURIComponent(field.date_updated))}>{ textFormat('date_updated', field.date_updated) }</li>
-                                ))}
-                            </ul>
-                        )
-                    }
-                    
                 </div>
                 <div className = 'botbar'></div>
             </div>
@@ -152,4 +130,4 @@ const Entry = () => {
     }
 };
 
-export default Entry;
+export default Copy;

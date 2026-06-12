@@ -56,12 +56,20 @@ app.get("/getsessiondatabase", (request, result) => {
     result.json({databaseName: databaseName});
 });
 
-//Retrieve session entry name
+//Retrieve session entry id
 app.get("/getsessionentry", (request, result) => {
-    const entryName = request.session.entryName;
-    console.log('backend entryName in getentryName: ', entryName);
+    const entryId = request.session.entryId;
+    console.log('backend entryId in getentryId: ', entryId);
     result.set('Cache-Control', 'no-store');
-    result.json({entryName: entryName});
+    result.json({entryId: entryId});
+});
+
+//Retrieve session updated date
+app.get("/getsessioncopy", (request, result) => {
+    const dateUpdated = request.session.dateUpdated;
+    console.log('backend dateUpdated in getdateUpdated: ', dateUpdated);
+    result.set('Cache-Control', 'no-store');
+    result.json({dateUpdated: dateUpdated});
 });
 
 //Set session database name
@@ -72,19 +80,35 @@ app.get("/setsessiondatabase/:databaseName", (request, result) => {
 });
 
 //Set session database entry
-app.get("/setsessionentry/:entryName", (request, result) => {
-    const { entryName } = request.params;
-    request.session.entryName = entryName;
-    console.log('backend entryName: ', entryName);
-    result.send('Session entry name set');
+app.get("/setsessionentry/:entryId", (request, result) => {
+    const { entryId } = request.params;
+    request.session.entryId = entryId;
+    console.log('backend entryId: ', entryId);
+    result.send('Session entry id set');
 });
 
-//Unset entry name
-app.get("/deletesessionentry", (request, result) => {
-    request.session.entryName = null;
-    console.log('backend entryName after setting to null: ', request.session.entryName);
-    result.send('Session entry name set to null');
+//Set session database entry copy
+app.get("/setsessioncopy/:dateUpdated", (request, result) => {
+    const { dateUpdated } = request.params;
+    request.session.dateUpdated = dateUpdated;
+    console.log('backend dateUpdated: ', dateUpdated);
+    result.send('Session entry id set');
 });
+
+//Unset session entry id
+app.get("/deletesessionentry", (request, result) => {
+    request.session.entryId = null;
+    console.log('backend entryId after setting to null: ', request.session.entryId);
+    result.send('Session entry id set to null');
+});
+
+//Unset session entry copy
+app.get("/deletesessioncopy", (request, result) => {
+    request.session.dateUpdated = null;
+    console.log('backend dateUpdated after setting to null: ', request.session.dateUpdated);
+    result.send('Session dateUpdated id set to null');
+});
+
 
 //Destroy login session
 app.get("/deleteloginsession", (request, result) => {
@@ -133,10 +157,22 @@ app.get("/databases/checkentries/:databaseName/:entryName", dbqueries.checkEntry
 app.post("/entries/create/:databaseName", dbqueries.createEntry);
 
 //Deletes a database entry
-app.delete("/entries/delete/:databaseName/:entryName", dbqueries.deleteEntry);
+app.delete("/entries/delete/:databaseName/:entryId", dbqueries.deleteEntry);
 
 //Gets all fields for a given entry
-app.get("/databases/entries/fields/:databaseName/:entryName", dbqueries.getEntryFields);
+app.get("/databases/entries/fields/:databaseName/:entryId", dbqueries.getEntryFields);
+
+//Updates a database entry
+app.patch("/entries/update/:databaseName/:entryId", dbqueries.updateEntryFields);
+
+//Gets copies for a given entry
+app.get("/entries/copies/:databaseName/:entryId", dbqueries.getEntryCopies);
+
+//Gets all fields for a copy
+app.get("/entries/copies/fields/:databaseName/:entryId/:dateUpdated", dbqueries.getEntryCopy);
+
+//Reverts entry to a copy version
+app.patch("/entries/copies/revert/:databaseName/:entryId/:dateUpdated", dbqueries.revertEntry);
 
 app.listen(8000, () => {
     console.log('App running on port 8000');

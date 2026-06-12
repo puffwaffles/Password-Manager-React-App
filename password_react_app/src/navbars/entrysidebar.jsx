@@ -28,9 +28,9 @@ const Bar = ({toggleEntrybar, hideEntrybar, deleteEntry}) => {
     };    
 };
 
-const Entrysidebar = ({barDatabaseName, barEntryName}) => {
+const Entrysidebar = ({barDatabaseName, barEntryId}) => {
     const databaseName = barDatabaseName;
-    const entryName = barEntryName;
+    const entryId = barEntryId;
     const [hideEntrybar, setHideEntrybar] = useState(true);
     const navigate = useNavigate();
 
@@ -45,7 +45,7 @@ const Entrysidebar = ({barDatabaseName, barEntryName}) => {
         event.preventDefault();
 
         //Deletes all instances of entry
-        const deletedEntry = await axios.delete(`${api_url}/entries/delete/${databaseName}/${entryName}`);
+        const deletedEntry = await axios.delete(`${api_url}/entries/delete/${databaseName}/${entryId}`);
 
         //Leave entry page
         const locked = await axios.get(`${api_url}/deletesessionentry`);

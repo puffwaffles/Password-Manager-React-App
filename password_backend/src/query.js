@@ -46,8 +46,8 @@ const checkDatabase = async (request, result) => {
 const entryInsert = async (tableName, tabletype) => {
     //Query mapping for each table type
     const queries = {
-        'entries': 'CREATE TABLE IF NOT EXISTS %I (name VARCHAR(50) PRIMARY KEY,  username VARCHAR(50), phonenumber VARCHAR(10), email VARCHAR(50), password VARCHAR(50), date_created TIMESTAMP DEFAULT NOW(), date_updated TIMESTAMP DEFAULT NOW())',
-        'extra values': 'CREATE TABLE IF NOT EXISTS %I (name VARCHAR(50),  field_name VARCHAR(50), field_value VARCHAR(50), private boolean)'
+        'entries': 'CREATE TABLE IF NOT EXISTS %I (entry_id BIGINT GENERATED ALWAYS AS IDENTITY, name VARCHAR(50) PRIMARY KEY,  username VARCHAR(50), phone_number VARCHAR(10), email VARCHAR(50), password VARCHAR(50), extras VARCHAR(1000), date_created TIMESTAMP(3) DEFAULT NOW(), date_updated TIMESTAMP(3) DEFAULT NOW())',
+        'entries copies': 'CREATE TABLE IF NOT EXISTS %I (entry_id BIGINT, name VARCHAR(50),  username VARCHAR(50), phone_number VARCHAR(10), email VARCHAR(50), password VARCHAR(50), extras VARCHAR(1000), date_updated TIMESTAMP(3) DEFAULT NOW())',
     }
         
     try {
@@ -68,19 +68,14 @@ const createDatabase = async (request, result) => {
     try {
         //Add database to databases table
         const entryquery = format('INSERT INTO password_databases (database_name, database_password) VALUES (%L, %L) RETURNING *', databaseName, password);
-        const newdatabaseentry = await pool.query(entryquery);
+        const newDatabaseentry = await pool.query(entryquery);
         //Create database table
-        const newdatabase = entryInsert(databaseName, 'entries');
-        //Create table for extra entries in the database
-        const extraFields = `${ databaseName }_extra_values`;
-        const newdatabaseextras = entryInsert(extraFields, 'extra values');
+        const newDatabase = entryInsert(databaseName, 'entries');
         //Create table for copies of database entries -> used to keep track of previous versions of entries
         const databaseCopies = `${ databaseName }_copies`;
-        const newdatabaseCopies = entryInsert(databaseCopies, 'entries');
-        //Create table for copies of extra fields -> used to keep track of previous versions of entries
-        const extraFieldsCopies = extraFields + '_copies';
-        const newdatabaseextrascopies = entryInsert(extraFieldsCopies, 'extra values');
-        result.json(newdatabaseentry.rows[0]);
+        const newDatabaseCopies = entryInsert(databaseCopies, 'entries copies');
+        
+        result.json(newDatabaseentry.rows[0]);
     }
     catch (error) {
         console.error('Error with creating new database: ', error);
@@ -92,14 +87,11 @@ const createDatabase = async (request, result) => {
 const checkDatabasePassword = async (request, result) => {
     const { databaseName } = request.params;
     const { password } = request.params; 
-    console.log("check password database name: ", databaseName);
-    console.log("check password password: ", password);
     var correct = false;
     try {
         const passwordquery = format('SELECT * FROM password_databases WHERE database_name = %L AND database_password = %L', databaseName, password);
         const correctpassword = await pool.query(passwordquery);
         correct = correctpassword.rowCount > 0 ? true : false;
-        console.log("correct: ", correct);
         result.json({ correct });
     }
     catch (error) {
@@ -112,7 +104,7 @@ const checkDatabasePassword = async (request, result) => {
 const getDatabasePassword = async (request, result) => {
     const { databaseName } = request.params;
     var actualpassword = '';
-    console.log(databaseName);
+    
     try {
         const passwordquery = format('SELECT database_password FROM password_databases WHERE database_name = %L', databaseName);
         const password = await pool.query(passwordquery);
@@ -145,12 +137,6 @@ const databaseDelete = async (tableName) => {
 const deleteDatabase = async (request, result) => {
     const { databaseName } = request.params;
     try {
-        //Delete extra fields table
-        const extraFields = `${ databaseName }_extra_values`;
-        const deleteDatabaseExtras = databaseDelete(extraFields);
-        //Delete extra fields copies table
-        const extracopies = extraFields + '_copies';
-        const deleteDatabaseExtrasCopies = databaseDelete(extracopies);
         //Delete database table
         const deletedatabase = databaseDelete(databaseName);
         //Delete database copies table
@@ -171,17 +157,22 @@ const deleteDatabase = async (request, result) => {
 //Changes name for a database
 const updatedatabaseName = async (request, result) => {
     const { databaseName } = request.params;
-    const { newdatabaseName } = request.body;
-
+    const { newDatabaseName } = request.body;
+    
     try {
-        const extraFields = `${ databaseName }_extra_values`;
-        const newextraFields = `${ newdatabaseName }_extra_values`;
-        const extraFieldsquery = format('ALTER TABLE %I RENAME TO %I', extraFields, newextraFields);
-        const extraFieldsdatabase = await pool.query(extraFieldsquery);
-        const databasequery = format('ALTER TABLE %I RENAME TO %I', databaseName, newdatabaseName);
-        const regulardatabase = await pool.query(databasequery);
-        const namequery = format('UPDATE password_databases SET database_name = %L WHERE database_name = %L RETURNING *', newdatabaseName, databaseName);
-        const newName = await pool.query(namequery);
+        //Rename copies table
+        const databaseCopiesName = databaseName + '_copies';
+        const newDatabaseCopiesName = newDatabaseName + '_copies';
+        const copyQuery = format('ALTER TABLE %I RENAME TO %I', databaseCopiesName, newDatabaseCopiesName);
+        const copyDatabase = await pool.query(copyQuery);
+        
+        //Rename main entries table
+        const databaseQuery = format('ALTER TABLE %I RENAME TO %I', databaseName, newDatabaseName);
+        const regulardatabase = await pool.query(databaseQuery);
+        
+        //Update table for databases
+        const nameQuery = format('UPDATE password_databases SET database_name = %L WHERE database_name = %L RETURNING *', newDatabaseName, databaseName);
+        const newName = await pool.query(nameQuery);
         result.json(newName.rows[0]);
     }
     catch (error) {
@@ -194,9 +185,6 @@ const updatedatabaseName = async (request, result) => {
 const updateDatabasePassword = async (request, result) => {
     const { databaseName } = request.params;
     const { password } = request.body;
-    console.log('databaseName:', databaseName);
-    console.log('password:', password);
-    console.log('full body:', request.body);
 
     try {
         const passwordquery = format('UPDATE password_databases SET database_password = %L WHERE database_name = %L RETURNING *', password, databaseName);
@@ -214,8 +202,8 @@ const getEntries = async (request, result) => {
     const { databaseName } = request.params;
     try {
         const entryquery = format('SELECT * FROM %I ORDER BY name', databaseName);
-        const entrylist = await pool.query(entryquery);
-        result.json(entrylist.rows);
+        const entryList = await pool.query(entryquery);
+        result.json(entryList.rows);
     }
     catch (error) {
         console.error('Error with getting database entries: ', error);
@@ -258,11 +246,9 @@ const checkEntry = async (request, result) => {
 };
 
 //Refactors delete 
-const entryDelete = async (tableName, entryName) => {
+const entryDelete = async (tableName, entryId) => {
     try {
-        console.log("helper delete entry database name: ", tableName);
-        console.log("helper delete entry entry name: ", entryName);
-        const query = format('DELETE FROM %I WHERE name = %L', tableName, entryName);
+        const query = format('DELETE FROM %I WHERE entry_id = %L', tableName, entryId);
         const deletequery = await pool.query(query);
     }
     catch (error) {
@@ -274,23 +260,13 @@ const entryDelete = async (tableName, entryName) => {
 //Deletes an entry for a given database
 const deleteEntry = async (request, result) => {
     const { databaseName } = request.params;
-    const { entryName } = request.params;
-    console.log("delete entry database name: ", databaseName);
-    console.log("delete entry entry name: ", entryName);
+    const { entryId } = request.params;
     try {
-        console.log("in try delete entry database name: ", databaseName);
-        console.log("in try delete entry entry name: ", entryName);
-        //Delete entry from extra fields table
-        const extraFields = `${ databaseName }_extra_values`;
-        const deleteDatabaseExtras = entryDelete(extraFields, entryName);
-        //Delete entry from extra fields copies table 
-        const extraFieldsCopies = extraFields + '_copies';
-        const deleteDatabaseExtrasCopies = entryDelete(extraFieldsCopies, entryName);
         //Delete entry from database table
-        const deleteEntry = entryDelete(databaseName, entryName);
+        const deleteEntry = entryDelete(databaseName, entryId);
         //Delete entry from database copies table
         const databaseCopies = databaseName + '_copies';
-        const deleteEntryCopies = entryDelete(databaseCopies, entryName);
+        const deleteEntryCopies = entryDelete(databaseCopies, entryId);
         result.json({ deleteEntry });
     }
     catch (error) {
@@ -302,16 +278,17 @@ const deleteEntry = async (request, result) => {
 //Retrieves all fields 
 const getEntryFields = async (request, result) => {
     const { databaseName } = request.params;
-    const { entryName } = request.params;
+    const { entryId } = request.params;
     try {
-        const entryquery = format('SELECT * FROM %I WHERE name = %L', databaseName, entryName);
-        const entrylist = await pool.query(entryquery);
-        const extraFields = `${ databaseName }_extra_values`;
-        const extraFieldsquery = format('SELECT field_name, field_value, private FROM %I WHERE name = %L', extraFields, entryName);
-        const extraFieldslist = await pool.query(extraFieldsquery);
+        const entryQuery = format('SELECT * FROM %I WHERE entry_id = %L', databaseName, entryId);
+        const entryList = await pool.query(entryQuery);
+        //Get copies
+        const databaseCopies = databaseName + '_copies';
+        const copyQuery = format('SELECT date_updated FROM %I WHERE entry_id = %L ORDER BY date_updated DESC', databaseCopies, entryId);
+        const copiesList = await pool.query(copyQuery);
         const fullentry = {
-            mainfields: entrylist.rows[0],
-            extraFields: extraFieldslist.rows
+            mainfields: entryList.rows[0],
+            copies: copiesList.rows
         }   
         result.json(fullentry);
     }
@@ -320,6 +297,126 @@ const getEntryFields = async (request, result) => {
         result.status(500).json({message: 'Error with getting entry fields'});
     }
 };
+
+//Updates fields
+const updateFields = async (tableName, entryId, fieldNames, fields, timestamp) => {
+    //Get first part of update statement
+    const firstQueryPart = 'UPDATE %I SET';
+    var middleQueryPart = '';
+    //Extract field names from array and append them to statement
+    for (var i = 0; i < fieldNames.length; i++) {
+        middleQueryPart += ' ' + fieldNames[i] + ' = %L';
+        middleQueryPart += ',';
+    }
+    //Get last part of statement
+    const lastQueryPart = ' date_updated = %L WHERE entry_id = %L';
+    try {
+        //Combine statement and used statement with parameters. mainFields is an array of field values
+        const query = format(firstQueryPart + middleQueryPart + lastQueryPart, tableName, ...fields, timestamp, entryId);
+        const fieldChange = await pool.query(query); 
+        return fieldChange;
+    }
+    catch (error) {
+        console.error('Error with updating fields: ', error);
+    }
+}
+
+//Updates entry with new field values
+const updateEntryFields = async (request, result) => {
+    //Get database name and entry name from params
+    const { databaseName, entryId} = request.params;
+    //Get lists for regular entry fields, extra fields, associated values and newName
+    const { mainFieldNames, mainFields} = request.body;
+    try {
+        //Makes change if any value was changed
+        if (mainFieldNames.length > 0) {
+            //Get time now
+            const timenow = await pool.query('SELECT NOW()::timestamp(3)');
+            const timestamp = timenow.rows[0].now;
+            //Copy old entry into copies table
+            const databaseCopiesName = databaseName + '_copies';
+            const insertPart = 'INSERT INTO %I (';
+            const columnNames = 'entry_id, name,  username, phone_number, email, password, extras, date_updated';
+            const endPart = ' FROM %I WHERE entry_id = %L'
+            const copyQuery = format(insertPart + columnNames + ') SELECT ' + columnNames + endPart, databaseCopiesName, databaseName, entryId);
+            const copiesList = await pool.query(copyQuery);
+            //Update entry in entry table
+            const entryList = await updateFields(databaseName, entryId, mainFieldNames, mainFields, timestamp);
+            const fullentry = {
+                mainfields: entryList.rows[0],
+                copies: copiesList.rows
+            } 
+            result.json(fullentry);
+        }
+        else {
+            result.json({message: 'No entry fields changed'});
+        }
+        
+    }
+    catch (error) {
+        console.error('Error with updating entry fields: ', error);
+        result.status(500).json({message: 'Error with updating entry fields'});
+    }
+};
+
+//Gets copies
+const getEntryCopies = async (request, result) => {
+    const { databaseName, entryId } = request.params;
+    const copies = databaseName + '_copies'
+    try {
+        const entryquery = format('SELECT name, date_updated FROM %I WHERE name = %L', copies, entryId);
+        const entryList = await pool.query(entryquery);
+        result.json(entryList.rows);
+    }
+    catch (error) {
+        console.error('Error with getting entry copies: ', error);
+        result.status(500).json({message: 'Error with getting entry copies'});
+    }
+};
+
+//Get copies fields
+const getEntryCopy = async (request, result) => {
+    const { databaseName, entryId, dateUpdated } = request.params;
+    try {
+        const copies = databaseName + '_copies'
+        const entryquery = format('SELECT * FROM %I WHERE entry_id = %L AND date_updated = %L', copies, entryId, dateUpdated);
+        const entryList = await pool.query(entryquery);
+        result.json(entryList.rows[0]);
+    }
+    catch (error) {
+        console.error('Error with getting entry copy: ', error);
+        result.status(500).json({message: 'Error with getting entry copy'});
+    }
+};
+
+//Reverts entry back to an existing copy
+const revertEntry = async (request, result) => {
+    const { databaseName, entryId, dateUpdated } = request.params;
+    try {
+        //Get time now
+        const timenow = await pool.query('SELECT NOW()::timestamp(3)');
+        const timestamp = timenow.rows[0].now;
+        //Copy old entry into copies table
+        const databaseCopiesName = databaseName + '_copies';
+        const insertPart = 'INSERT INTO %I (';
+        const columnNames = 'entry_id, name,  username, phone_number, email, password, extras, date_updated';
+        const endPart = ' FROM %I WHERE entry_id = %L'
+        const copyQuery = format(insertPart + columnNames + ') SELECT ' + columnNames + endPart, databaseCopiesName, databaseName, entryId);
+        const copiesList = await pool.query(copyQuery);
+        //Change current entry to selected version
+        const updatePart = 'UPDATE %I ';
+        const setPart = "SET name = copies.name, username = copies.username, phone_number = copies.phone_number, email = copies.email, password = copies.password, extras = copies.extras ";
+        const fromPart = "FROM %I AS copies ";
+        const wherePart = "WHERE %I.entry_id = %L AND copies.entry_id = %L AND copies.date_Updated = %L RETURNING *";
+        const updateQuery = format(updatePart + setPart + fromPart + wherePart, databaseName, databaseCopiesName, databaseName, entryId, entryId, dateUpdated);
+        const updatedEntry = await pool.query(updateQuery);
+        result.json(updatedEntry.rows[0]);
+    }
+    catch (error) {
+        console.error('Error with updating entry copy: ', error);
+        result.status(500).json({message: 'Error with updating entry copy'});
+    }
+}
 
 export {
     pool,
@@ -336,5 +433,9 @@ export {
     createEntry,
     deleteEntry,
     getEntryFields,
+    updateEntryFields,
+    getEntryCopies,
+    getEntryCopy,
+    revertEntry,
 }
     

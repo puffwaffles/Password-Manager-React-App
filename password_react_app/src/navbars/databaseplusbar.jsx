@@ -3,7 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import axios from "axios";
 axios.defaults.withCredentials = true;
 import './navbars.css';
-import Error from "../pages/error.jsx";
+import Errorprop from "../pages/error.jsx";
 import { CiCirclePlus } from "react-icons/ci";
 
 const api_url = 'http://localhost:8000';
@@ -35,7 +35,7 @@ const Bar = ({togglePlusbar, hidePlusBar, newEntry, setNewEntry, handleEntrySubm
                                 />
                             </div>
                             <input type = 'submit' />
-                            <Error showerror = { showErrorMessage } errorMessage = { errorMessage }/>
+                            <Errorprop showerror = { showErrorMessage } errorMessage = { errorMessage }/>
                         </form>
                     </div>
                 </div>

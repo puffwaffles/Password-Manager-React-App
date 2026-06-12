@@ -3,13 +3,13 @@ import {useNavigate, useLocation, useParams} from 'react-router-dom';
 import axios from 'axios';
 axios.defaults.withCredentials = true;
 import './pages.css';
-import Error from './error.jsx';
+import Errorprop from './error.jsx';
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa6';
 import Error404 from './error404.jsx';
 const api_url = 'http://localhost:8000';
 
 const Login = () => {
-    const [databaseName, setdatabaseName] = useState('');
+    const [databaseName, setDatabaseName] = useState('');
     const [loading, setLoading] = useState(true);
     const [loginpassword, setLoginPassword] = useState('');
     const [showErrorMessage, setShowErrorMessage] = useState(false);
@@ -19,11 +19,9 @@ const Login = () => {
 
     const sessiondatabaseName = async () => {
         const sessiondatabase = await axios.get(`${api_url}/getsessiondatabase`);
-        console.log("front end databaseName: ", sessiondatabase.data.databaseName);
-        console.log("full response: ", sessiondatabase.data);
         const sessdatabaseName = sessiondatabase.data.databaseName;
         setLoading(false);
-        setdatabaseName(sessdatabaseName);
+        setDatabaseName(sessdatabaseName);
     };
 
     //Update list of database entries
@@ -45,21 +43,14 @@ const Login = () => {
 
     //Handles submission of database name and password
     async function handleSubmit(event) {
-        console.log('databaseName:', databaseName);
         event.preventDefault();
         const password = loginpassword;
         //Checks if password is correct
         const correct = await axios.get(`${api_url}/databases/password/login/${databaseName}/${password}`);
-        console.log(correct.data);
-        console.log(correct.data.correct);
-        console.log('password:', loginpassword);
-        const correctpassword = await axios.get(`${api_url}/databases/login/${databaseName}`);
-        console.log('correct password: ', correctpassword.data.actualpassword);
         //If password is correct, travel to database page
         if (correct.data.correct) {
             //Set login
             const login = await axios.get(`${api_url}/setloginsession/${databaseName}`);
-            console.log(login.data);
             navigate(`/database`);
         }
         else {
@@ -93,7 +84,7 @@ const Login = () => {
                             }
                         />
                     </div>
-                    <Error showerror = { showErrorMessage } errorMessage = 'Incorrect password'/>  
+                    <Errorprop showerror = { showErrorMessage } errorMessage = 'Incorrect password'/>  
                     <div className = "twobtns">
                         <input type = 'submit' />
                         <button type = 'button' className = 'closebtn' onClick = { goBack }>Go Back</button>
