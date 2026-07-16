@@ -60,7 +60,6 @@ const Databaseplusbar = ({barDatabaseName}) => {
 
     //Handles submission of new password
     async function handleEntrySubmit(event) {
-        console.log('databaseName:', databaseName);
         event.preventDefault();
         const entryName = newEntry;
         //Checks if database name is already used

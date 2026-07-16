@@ -219,27 +219,23 @@ const Databasesidebar = ({barDatabaseName}) => {
 
     //Handles submission of new password
     async function handleNameSubmit(event) {
-        console.log('databaseName:', databaseName);
         event.preventDefault();
         const newDatabaseName = newName;
         //Checks if database name is already used
         const databaseExists = await axios.get(`${api_url}/databases/${newDatabaseName}`);
         
-        console.log('newDatabaseName:', newDatabaseName);
         if (newDatabaseName === '') {
             //Set error message on
             setShowErrorMessage(true);
             setErrorMessage('Database must have a name');
         }
         else if (!databaseExists.data.exists) {
-            console.log(newDatabaseName);
             const changedname = await axios.patch(`${api_url}/databases/setname/${databaseName}`, { newDatabaseName });
             setNewName('');
             setHideNamePanel(true);
             setHideSidebar(true);
             const changedsessionname = await axios.get(`${api_url}/setsessiondatabase/${newDatabaseName}`);
             const sessiondatabase = await axios.get(`${api_url}/getsessiondatabase`);
-            console.log("front end databaseName: ", sessiondatabase.data.databaseName);
             navigate(`/database/`);
         }
         //If database name is already used by another database
@@ -252,14 +248,11 @@ const Databasesidebar = ({barDatabaseName}) => {
 
     //Handles submission of new password
     async function handlePasswordSubmit(event) {
-        console.log('databaseName:', databaseName);
         event.preventDefault();
         const password = newPassword.password;
         const confirmpassword = newPassword.confirmpassword;
         //Checks if password is old password
         const correct = await axios.get(`${api_url}/databases/password/login/${databaseName}/${password}`);
-        console.log(correct.data);
-        console.log('newPassword state:', newPassword);
         //New password is the same as old password
         if (correct.data.correct) {
             //Set error message on
