@@ -38,7 +38,6 @@ app.get("/setloginsession/:databaseName", (request, result) => {
     request.session.databaseName = databaseName;
     request.session.login = true;
     result.send('Session login and database name set');
-    console.log(request.session);
 });
 
 //Retrieve session login to check if login has been made
@@ -51,7 +50,6 @@ app.get("/getloginsession", (request, result) => {
 //Retrieve session database name
 app.get("/getsessiondatabase", (request, result) => {
     const databaseName = request.session.databaseName;
-    console.log("backend databaseName: ", databaseName);
     result.set('Cache-Control', 'no-store');
     result.json({databaseName: databaseName});
 });
@@ -59,7 +57,6 @@ app.get("/getsessiondatabase", (request, result) => {
 //Retrieve session entry id
 app.get("/getsessionentry", (request, result) => {
     const entryId = request.session.entryId;
-    console.log('backend entryId in getentryId: ', entryId);
     result.set('Cache-Control', 'no-store');
     result.json({entryId: entryId});
 });
@@ -67,7 +64,6 @@ app.get("/getsessionentry", (request, result) => {
 //Retrieve session updated date
 app.get("/getsessioncopy", (request, result) => {
     const dateUpdated = request.session.dateUpdated;
-    console.log('backend dateUpdated in getdateUpdated: ', dateUpdated);
     result.set('Cache-Control', 'no-store');
     result.json({dateUpdated: dateUpdated});
 });
@@ -83,7 +79,6 @@ app.get("/setsessiondatabase/:databaseName", (request, result) => {
 app.get("/setsessionentry/:entryId", (request, result) => {
     const { entryId } = request.params;
     request.session.entryId = entryId;
-    console.log('backend entryId: ', entryId);
     result.send('Session entry id set');
 });
 
@@ -91,21 +86,18 @@ app.get("/setsessionentry/:entryId", (request, result) => {
 app.get("/setsessioncopy/:dateUpdated", (request, result) => {
     const { dateUpdated } = request.params;
     request.session.dateUpdated = dateUpdated;
-    console.log('backend dateUpdated: ', dateUpdated);
     result.send('Session entry id set');
 });
 
 //Unset session entry id
 app.get("/deletesessionentry", (request, result) => {
     request.session.entryId = null;
-    console.log('backend entryId after setting to null: ', request.session.entryId);
     result.send('Session entry id set to null');
 });
 
 //Unset session entry copy
 app.get("/deletesessioncopy", (request, result) => {
     request.session.dateUpdated = null;
-    console.log('backend dateUpdated after setting to null: ', request.session.dateUpdated);
     result.send('Session dateUpdated id set to null');
 });
 
@@ -114,7 +106,6 @@ app.get("/deletesessioncopy", (request, result) => {
 app.get("/deleteloginsession", (request, result) => {
     request.session.destroy((error) => {
         if (error) {
-            console.log('Error with deleting session: ', error);
             result.status(500).send('Error with deleting session');
         }
         else {
