@@ -33,9 +33,6 @@ const Editentry = () => {
         const sessionlogin = await axios.get(`${api_url}/getloginsession`);
         const sessiondatabase = await axios.get(`${api_url}/getsessiondatabase`);
         const sessionentry = await axios.get(`${api_url}/getsessionentry`);
-        console.log("front end login: ", sessionlogin.data.login);
-        console.log("front end databaseName: ", sessiondatabase.data.databaseName);
-        console.log("front end entryId: ", sessionentry.data.entryId);
         const sesslogin = sessionlogin.data.login;
         const sessdatabaseName = sessiondatabase.data.databaseName;
         const sessentry = sessionentry.data.entryId;
@@ -71,7 +68,6 @@ const Editentry = () => {
 
     //Convert datetime to local time
     const timeFormat = (value) => {
-        console.log('Date changed to local');
         return new Date(value).toLocaleString();
         return value;
     };
@@ -211,11 +207,8 @@ const Editentry = () => {
                     <div>
                         <button className = 'logo' onClick = { save }><FaSave /></button>
                     </div>
-                    
                 </div>
                 <div className = 'barboxcontent'>
-                    {Object.keys(updatedFields).map(k => <span key={k}>{k} </span>)}
-                    {Object.values(updatedFields).map((v, i) => <span key={i}>{v} </span>)}
                     <h2>{entryName}</h2>
                     <ul className = 'leftlist'>
                         {Object.entries(entryFields).map(([key, value]) => (

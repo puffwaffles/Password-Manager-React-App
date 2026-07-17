@@ -6,6 +6,7 @@ import './pages.css';
 import { mappings } from './columnmap.js';
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
+import { FaRegCopy } from "react-icons/fa";
 import Copysidebar from '../navbars/copysidebar.jsx';
 import Error404 from './error404.jsx';
 const api_url = 'http://localhost:8000';
@@ -21,6 +22,7 @@ const Copy = () => {
     const [hidePassword, setHidePassword] = useState(true);
     const navigate = useNavigate();
     const location = useLocation();
+    const [copyMessage, setCopyMessage] = useState('Copy');
 
     const sessiondetails = async () => {
         const sessionlogin = await axios.get(`${api_url}/getloginsession`);
@@ -97,6 +99,38 @@ const Copy = () => {
         return value;
     }
 
+    //Copies text to clipboard
+    async function copy2Clipboard (value) {
+        try {
+            await navigator.clipboard.writeText(value);
+            setCopyMessage('Copied!');
+            const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+            await wait(1000);
+            setCopyMessage('Copy');
+        }
+        catch (error) {
+            console.log("Failed to copy");
+        }
+        
+    }
+
+    //Allows for copy and paste
+    const copyButton = (key, value) => {
+        if (key !== 'date_created' && key !== 'date_updated') {
+            return (
+                <div className = 'tooltip'>
+                    <button className = 'copybtn' onClick = { () => copy2Clipboard(value) }>
+                        <FaRegCopy />
+                    </button>
+                    <span className = 'tooltiptextright'>{ copyMessage }</span>
+                </div>
+            );
+        }
+        else {
+            return (<></>);
+        }
+    } 
+
     if (loading) {
         return(<h1>Loading page</h1>);
     }
@@ -120,7 +154,7 @@ const Copy = () => {
                     <h2>{entryName}</h2>
                     <ul className = 'leftlist'>
                         {Object.entries(entryFields).map(([key, value]) => (
-                            key != 'entry_id' && key != 'name' && value != null && <li key = { key }>{ mappings[key] }: { textFormat(key, value) }</li>
+                            key != 'entry_id' && key != 'name' && value != null && <li key = { key }>{ mappings[key] }: { textFormat(key, value) } { copyButton(key, value) }</li>
                         ))}
                     </ul>
                 </div>
